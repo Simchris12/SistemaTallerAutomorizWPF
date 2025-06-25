@@ -10,16 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SistemaTallerAutomorizWPF
+namespace SistemaTallerAutomorizWPF.View
 {
     /// <summary>
-    /// Lógica de interacción para FrmClientes.xaml
+    /// Lógica de interacción para VehicleView.xaml
     /// </summary>
-    public partial class FrmClientes : Window
+    public partial class VehicleView : UserControl
     {
-        public FrmClientes()
+        public VehicleView()
         {
             InitializeComponent();
         }

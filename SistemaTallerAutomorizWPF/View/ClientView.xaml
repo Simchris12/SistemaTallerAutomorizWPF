@@ -1,0 +1,117 @@
+﻿<UserControl x:Class="SistemaTallerAutomorizWPF.View.ClientView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SistemaTallerAutomorizWPF.View"
+             xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="1300">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Top"
+                        Grid.Column="0">
+                <fa:IconImage Icon="Search" Height="20" Foreground="{StaticResource plainTextColor3}"/>
+
+                <TextBox Text="Buscar..."
+                         GotFocus="BuscarTextBox_GotFocus"
+                         Name="BuscarTextBox"
+                         LostFocus="BuscarTextBox_LostFocus"
+                         KeyDown="BuscarTextBox_KeyDown"
+                         TextChanged="BuscarTextBox_TextChanged"
+                         FontSize="13"
+                         Height="24"
+                         Width="300"
+                         Background="Transparent"
+                         FontWeight="Medium"
+                         FontFamily="Montserrat"
+                         Foreground="{StaticResource plainTextColor3}"
+                         CaretBrush="{StaticResource plainTextColor3}"
+                         BorderBrush="{StaticResource plainTextColor3}"
+                         BorderThickness="0,0,0,1"
+                         VerticalAlignment="Center"
+                         Margin="5,5,0,0" />
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Command="{Binding LoginCommand}"
+                    Content="Buscar"
+                    FontSize="12"
+                    FontFamily="Montserrat"
+                    Cursor="Hand"
+                    BorderThickness="0"
+                    Foreground="White"
+                    VerticalAlignment="Top" Click="Button_Click">
+
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Background" Value="{StaticResource buttonPrimaryColor}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Height="30"
+                                            CornerRadius="15"
+                                            Background="{TemplateBinding Background}">
+                                        <ContentPresenter VerticalAlignment="Center"
+                                                          HorizontalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="306*"/>
+                <ColumnDefinition Width="19*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.ColumnSpan="2">
+                <Border Background="White" CornerRadius="12" Padding="16" Margin="8"
+                    Width="200" Height="120" 
+                    BorderBrush="#DDD" BorderThickness="1">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black"
+                      Direction="270"
+                      ShadowDepth="4"
+                      BlurRadius="10"
+                      Opacity="0.25"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <!-- Título -->
+                        <TextBlock Text="New Net Income" FontSize="14" Foreground="#999" FontWeight="SemiBold"/>
+
+                        <!-- Valor -->
+                        <TextBlock Text="£8,245.00" FontSize="20" Foreground="#333" FontWeight="Bold" Margin="0,4,0,8"/>
+
+                        <!-- Gráfico simulado -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Rectangle Width="6" Height="20" Fill="#C3E065" Margin="2"/>
+                            <Rectangle Width="6" Height="30" Fill="#A2CF4E" Margin="2"/>
+                            <Rectangle Width="6" Height="15" Fill="#6FAF3E" Margin="2"/>
+                            <Rectangle Width="6" Height="25" Fill="#6FAF3E" Margin="2"/>
+                        </StackPanel>
+
+                        <!-- Porcentaje de cambio -->
+                        <TextBlock Text="+0.5% from last week" FontSize="12" Foreground="Green" FontStyle="Italic" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

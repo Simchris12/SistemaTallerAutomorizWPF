@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -8,19 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using SistemaTallerAutomorizWPF.ViewModels;
 
-namespace SistemaTallerAutomorizWPF
+namespace SistemaTallerAutomorizWPF.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Lógica de interacción para ServicesView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ServicesView : UserControl
     {
-        public MainWindow()
+        public ServicesView()
         {
             InitializeComponent();
-            DataContext = new LoginViewModel();
         }
     }
 }
