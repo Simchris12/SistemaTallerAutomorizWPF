@@ -5,12 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SistemaTallerAutomorizWPF.View"
              xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+             xmlns:oxy="http://oxyplot.org/wpf" xmlns:viewmodels="clr-namespace:SistemaTallerAutomorizWPF.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ClientesViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1300">
     <Grid>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
@@ -81,6 +83,7 @@
                 <ColumnDefinition Width="306*"/>
                 <ColumnDefinition Width="19*"/>
             </Grid.ColumnDefinitions>
+
             <StackPanel Grid.ColumnSpan="2">
                 <Border Background="White" CornerRadius="12" Padding="16" Margin="8"
                     Width="200" Height="120" 
@@ -113,5 +116,50 @@
                 </Border>
             </StackPanel>
         </Grid>
+
+        <Grid Grid.Row="2"  Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Encabezado -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 0 10">
+                <Button
+                    Content="Importar a Excel" Padding="15,5"
+                    Background="#DEE33E" Foreground="Black"
+                    FontWeight="Bold" Cursor="Hand" 
+                    BorderThickness="0" Width="150" Height="35"
+                    Margin="0,0,10,0" />
+                
+            </StackPanel>
+
+            <!-- Tabla de clientes -->
+            <DataGrid x:Name="ClientDataGrid" Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  IsReadOnly="True"
+                  HeadersVisibility="Column"
+                  RowHeaderWidth="0"
+                  ColumnHeaderHeight="35"
+                  RowHeight="35"
+                  Background="White"
+                  GridLinesVisibility="Vertical"
+                  BorderBrush="#E0E0E0"
+                  BorderThickness="1"
+                  FontFamily="Montserrat"
+                  FontSize="13"
+                  Margin="0">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nombre del Cliente" Binding="{Binding Nombre}" Width="*"/>
+                    <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
+                    <DataGridTextColumn Header="Vehículo" Binding="{Binding Vehiculo}" Width="*"/>
+                    <DataGridTextColumn Header="Órdenes" Binding="{Binding Ordenes}" Width="*"/>
+                    <DataGridTextColumn Header="Deudas" Binding="{Binding Deudas}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
     </Grid>
 </UserControl>
