@@ -13,6 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SistemaTallerAutomorizWPF.ViewModels;
+using SistemaTallerAutomorizWPF.Models;
+using System.Collections.ObjectModel;
+using System.Data.SqlClient;
 
 namespace SistemaTallerAutomorizWPF.View
 {
@@ -24,6 +27,9 @@ namespace SistemaTallerAutomorizWPF.View
         public ClientView()
         {
             InitializeComponent();
+                ClientsList = new ObservableCollection<Client>();
+                ClientDataGrid.ItemsSource = ClientsList;
+                LoadClientsFromDB();
         }
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -67,6 +73,41 @@ namespace SistemaTallerAutomorizWPF.View
         private void Button_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        public ObservableCollection<Client> ClientsList { get; set; }
+
+        private void LoadClientsFromDB()
+        {
+            using (SqlConnection connection = Connections.GetConnection())
+            {
+                string query = "SELECT NameClient, Email, Vehicle, Orders, Debts FROM Clientes";
+                SqlCommand command = new SqlCommand(query, connection);
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ClientsList.Add(new Client
+                        {
+                            NameClient = reader["NameClient"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Vehicle = reader["Vehicle"].ToString(),
+                            Orders = Convert.ToInt32(reader["Orders"]),
+                            Debts = Convert.ToDecimal(reader["Debts"])
+                        });
+                    }
+
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error loading data: " + ex.Message);
+                }
+            }
         }
     }
 }

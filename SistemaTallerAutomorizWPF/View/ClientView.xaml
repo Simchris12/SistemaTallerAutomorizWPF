@@ -152,11 +152,11 @@
                   Margin="0">
 
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nombre del Cliente" Binding="{Binding Nombre}" Width="*"/>
+                    <DataGridTextColumn Header="Nombre del Cliente" Binding="{Binding NameClient}" Width="*"/>
                     <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
-                    <DataGridTextColumn Header="Vehículo" Binding="{Binding Vehiculo}" Width="*"/>
-                    <DataGridTextColumn Header="Órdenes" Binding="{Binding Ordenes}" Width="*"/>
-                    <DataGridTextColumn Header="Deudas" Binding="{Binding Deudas}" Width="*" />
+                    <DataGridTextColumn Header="Vehículo" Binding="{Binding Vehicle}" Width="*"/>
+                    <DataGridTextColumn Header="Órdenes" Binding="{Binding Orders}" Width="*"/>
+                    <DataGridTextColumn Header="Deudas" Binding="{Binding Debts}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

@@ -7,16 +7,13 @@ using System.Data.SqlClient;
 
 namespace SistemaTallerAutomorizWPF.Models
 {
-    internal class Connections
+    public static class Connections
     {
-        public static class Connection
-        {
-            public static String ConnectionString = "Data Source=localhost;Initial Catalog=MVVMLogindb;Integrated Security=True";
+        private static string connectionString = "Data Source=localhost;Initial Catalog=SITAUTODB;Integrated Security=True";
 
-            public static SqlConnection ObtainConnection()
-            {
-                return new SqlConnection(ConnectionString);
-            }
+        public static SqlConnection GetConnection()
+        {
+            return new SqlConnection(connectionString);
         }
     }
 }
