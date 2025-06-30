@@ -5,7 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SistemaTallerAutomorizWPF.View"
              xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
-             xmlns:oxy="http://oxyplot.org/wpf" xmlns:viewmodels="clr-namespace:SistemaTallerAutomorizWPF.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ClientesViewModel}"
+             xmlns:oxy="http://oxyplot.org/wpf" 
+             xmlns:viewmodels="clr-namespace:SistemaTallerAutomorizWPF.ViewModels" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:ClientesViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1300">
     <Grid>
@@ -159,6 +161,8 @@
                     <DataGridTextColumn Header="Deudas" Binding="{Binding Debts}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
+            
+            
         </Grid>
 
     </Grid>
