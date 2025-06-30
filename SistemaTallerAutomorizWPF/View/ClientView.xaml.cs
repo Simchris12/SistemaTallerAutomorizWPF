@@ -111,5 +111,55 @@ namespace SistemaTallerAutomorizWPF.View
                 }
             }
         }
+
+        private void Button_Click_1()
+        {
+
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Excel Files|*.xlsx",
+                Title = "Exported_Clients.xlsx"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    using (var workbook = new XLWorkbook())
+                    {
+                        var worksheet = workbook.Worksheets.Add("Clients");
+
+                        //Encabezados
+                        worksheet.Cell(1, 1).Value = "Nombre del cliente";
+                        worksheet.Cell(1, 2).Value = "Email";
+                        worksheet.Cell(1, 3).Value = "Vehículo";
+                        worksheet.Cell(1, 4).Value = "Órdenes";
+                        worksheet.Cell(1, 5).Value = "Dedudas";
+
+                        //Datos
+                        for (int i = 0; i < ClientsList.Count; i++)
+                        {
+                            var Client = ClientsList[i];
+                            worksheet.Cell(i + 2, 1).Value = Client.NameClient;
+                            worksheet.Cell(i + 2, 2).Value = Client.Email;
+                            worksheet.Cell(i + 2, 3).Value = Client.Vehicle;
+                            worksheet.Cell(i + 2, 4).Value = Client.Orders;
+                            worksheet.Cell(i + 2, 5).Value = Client.Debts;
+                        }
+
+                        workbook.SaveAs(saveFileDialog.FileName);
+                        MessageBox.Show("Exportación completada correctamente", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al exportar: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
     }
 }
