@@ -206,7 +206,7 @@ namespace SistemaTallerAutomorizWPF.View
                 return;
             }
 
-            // Validar formato de Email
+            // Alerta de validación del formato de Email
             if (!EmailEsValido(EmailTextBox.Text.Trim()))
             {
                 MessageBox.Show("El correo electrónico no tiene un formato válido.");
@@ -214,11 +214,21 @@ namespace SistemaTallerAutomorizWPF.View
                 return;
             }
 
-            // Parsear órdenes y deudas
-            int orders = 0;
-            decimal debts = 0;
-            int.TryParse(OrdenesTextBox.IsPlaceHolderVisible ? "0" : OrdenesTextBox.Text, out orders);
-            decimal.TryParse(DeudasTextBox.IsPlaceHolderVisible ? "0" : DeudasTextBox.Text, out debts);
+            // Validar Órdenes
+            if (!int.TryParse(OrdenesTextBox.IsPlaceHolderVisible ? "0" : OrdenesTextBox.Text, out int orders) || orders < 0)
+            {
+                MessageBox.Show("El número de órdenes debe ser un número entero positivo.");
+                boton.IsEnabled = true;
+                return;
+            }
+
+            //Validar Deudas
+            if (!decimal.TryParse(DeudasTextBox.IsPlaceHolderVisible ? "0" : DeudasTextBox.Text, out decimal debts) || debts < 0)
+            {
+                MessageBox.Show("El monto de deudas debe ser un número decimal positivo.");
+                boton.IsEnabled = true;
+                return;
+            }
 
             using (SqlConnection connection = SistemaTallerAutomorizWPF.Models.Connections.GetConnection())
             {
