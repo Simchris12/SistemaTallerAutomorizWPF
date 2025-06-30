@@ -151,6 +151,27 @@ namespace SistemaTallerAutomorizWPF.View
                             worksheet.Cell(i + 2, 5).Value = Client.Debts;
                         }
 
+                        //Autoajustar columnas
+                        worksheet.Columns().AdjustToContents();
+
+                        //Fondo de encabezados
+                        var headerRange = worksheet.Range("A1:E1");
+                        headerRange.Style.Fill.BackgroundColor = XLColor.LightGreen;
+
+                        //Estilo de encabezados
+                        headerRange.Style.Font.Bold = true;
+                        headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                        //Bordes
+                        worksheet.RangeUsed().Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                        worksheet.RangeUsed().Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+                        //formato de moneda para la columna de deudas
+                        worksheet.Column(5).Style.NumberFormat.Format = "$#,##0.00";
+
+                        //Filtros automaticos en los encabezados
+                        worksheet.RangeUsed().SetAutoFilter();
+
                         workbook.SaveAs(saveFileDialog.FileName);
                         MessageBox.Show("Exportación completada correctamente", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
