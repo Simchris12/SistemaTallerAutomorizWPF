@@ -185,30 +185,41 @@ namespace SistemaTallerAutomorizWPF.View
 
         private void AgregarCliente_Click(object sender, RoutedEventArgs e)
         {
-            //Para no guardar los placeholders
+            Button boton = (Button)sender;
+            boton.IsEnabled = false; // Desactiva el botón
+
+            // Para no guardar los placeholders
             if (NombreTextBox.IsPlaceHolderVisible || EmailTextBox.IsPlaceHolderVisible || VehiculoTextBox.IsPlaceHolderVisible)
             {
                 MessageBox.Show("Por favor, completa todos los campos obligatorios.");
+                boton.IsEnabled = true;
                 return;
             }
 
-            //validación básica
-            if (String.IsNullOrWhiteSpace(NombreTextBox.Text) ||
-                String.IsNullOrWhiteSpace(EmailTextBox.Text) ||
-                String.IsNullOrWhiteSpace(VehiculoTextBox.Text))
+            // Validación básica
+            if (string.IsNullOrWhiteSpace(NombreTextBox.Text) ||
+                string.IsNullOrWhiteSpace(EmailTextBox.Text) ||
+                string.IsNullOrWhiteSpace(VehiculoTextBox.Text))
             {
                 MessageBox.Show("Nombre, Email y Vehículo son campos obligatorios.");
+                boton.IsEnabled = true;
                 return;
             }
 
-            //parsear los valores de órdenes y deudas
+            // Validar formato de Email
+            if (!EmailEsValido(EmailTextBox.Text.Trim()))
+            {
+                MessageBox.Show("El correo electrónico no tiene un formato válido.");
+                boton.IsEnabled = true;
+                return;
+            }
+
+            // Parsear órdenes y deudas
             int orders = 0;
             decimal debts = 0;
-
             int.TryParse(OrdenesTextBox.IsPlaceHolderVisible ? "0" : OrdenesTextBox.Text, out orders);
             decimal.TryParse(DeudasTextBox.IsPlaceHolderVisible ? "0" : DeudasTextBox.Text, out debts);
 
-            //Insertar en la base de datos
             using (SqlConnection connection = SistemaTallerAutomorizWPF.Models.Connections.GetConnection())
             {
                 string insertQuery = "INSERT INTO Clientes (NameClient, Email, Vehicle, Orders, Debts) VALUES (@NameClient, @Email, @Vehicle, @Orders, @Debts)";
@@ -226,14 +237,14 @@ namespace SistemaTallerAutomorizWPF.View
                     command.ExecuteNonQuery();
                     MessageBox.Show("Cliente agregado correctamente.");
 
-                    // Limpia los campos
+                    // Limpiar campos
                     NombreTextBox.Text = "";
                     EmailTextBox.Text = "";
                     VehiculoTextBox.Text = "";
                     OrdenesTextBox.Text = "";
                     DeudasTextBox.Text = "";
 
-                    // Recarga los datos
+                    // Recargar datos
                     ClientsList.Clear();
                     LoadClientsFromDB();
                 }
@@ -241,9 +252,19 @@ namespace SistemaTallerAutomorizWPF.View
                 {
                     MessageBox.Show("Error al agregar el cliente: " + ex.Message);
                 }
+                finally
+                {
+                    boton.IsEnabled = true; // Reactiva el botón
+                }
             }
         }
 
+        //validación del Email
+        private bool EmailEsValido(string email)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(email,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        }
         private void EditarCliente_Click(object sender, RoutedEventArgs e)
         {
 
