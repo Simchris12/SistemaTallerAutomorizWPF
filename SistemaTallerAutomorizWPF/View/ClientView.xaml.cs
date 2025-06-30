@@ -182,5 +182,76 @@ namespace SistemaTallerAutomorizWPF.View
                 }
             }
         }
+
+        private void AgregarCliente_Click(object sender, RoutedEventArgs e)
+        {
+            //Para no guardar los placeholders
+            if (NombreTextBox.IsPlaceHolderVisible || EmailTextBox.IsPlaceHolderVisible || VehiculoTextBox.IsPlaceHolderVisible)
+            {
+                MessageBox.Show("Por favor, completa todos los campos obligatorios.");
+                return;
+            }
+
+            //validación básica
+            if (String.IsNullOrWhiteSpace(NombreTextBox.Text) ||
+                String.IsNullOrWhiteSpace(EmailTextBox.Text) ||
+                String.IsNullOrWhiteSpace(VehiculoTextBox.Text))
+            {
+                MessageBox.Show("Nombre, Email y Vehículo son campos obligatorios.");
+                return;
+            }
+
+            //parsear los valores de órdenes y deudas
+            int orders = 0;
+            decimal debts = 0;
+
+            int.TryParse(OrdenesTextBox.IsPlaceHolderVisible ? "0" : OrdenesTextBox.Text, out orders);
+            decimal.TryParse(DeudasTextBox.IsPlaceHolderVisible ? "0" : DeudasTextBox.Text, out debts);
+
+            //Insertar en la base de datos
+            using (SqlConnection connection = SistemaTallerAutomorizWPF.Models.Connections.GetConnection())
+            {
+                string insertQuery = "INSERT INTO Clientes (NameClient, Email, Vehicle, Orders, Debts) VALUES (@NameClient, @Email, @Vehicle, @Orders, @Debts)";
+                SqlCommand command = new SqlCommand(insertQuery, connection);
+
+                command.Parameters.AddWithValue("@NameClient", NombreTextBox.Text.Trim());
+                command.Parameters.AddWithValue("@Email", EmailTextBox.Text.Trim());
+                command.Parameters.AddWithValue("@Vehicle", VehiculoTextBox.Text.Trim());
+                command.Parameters.AddWithValue("@Orders", orders);
+                command.Parameters.AddWithValue("@Debts", debts);
+
+                try
+                {
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    MessageBox.Show("Cliente agregado correctamente.");
+
+                    // Limpia los campos
+                    NombreTextBox.Text = "";
+                    EmailTextBox.Text = "";
+                    VehiculoTextBox.Text = "";
+                    OrdenesTextBox.Text = "";
+                    DeudasTextBox.Text = "";
+
+                    // Recarga los datos
+                    ClientsList.Clear();
+                    LoadClientsFromDB();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al agregar el cliente: " + ex.Message);
+                }
+            }
+        }
+
+        private void EditarCliente_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void EliminarCliente_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

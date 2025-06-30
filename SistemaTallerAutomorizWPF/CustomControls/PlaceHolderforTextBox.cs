@@ -14,6 +14,7 @@ namespace SistemaTallerAutomorizWPF.CustomControls
     {
         public static readonly DependencyProperty PlaceholderProperty =
     DependencyProperty.Register(nameof(PlaceHolder), typeof(string), typeof(PlaceHolderforTextBox), new PropertyMetadata(string.Empty));
+
         public string PlaceHolder
         {
             get => (string)GetValue(PlaceholderProperty);
