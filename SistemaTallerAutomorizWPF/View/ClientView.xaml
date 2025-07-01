@@ -98,9 +98,9 @@
     <cc:PlaceHolderforTextBox x:Name="DeudasTextBox" PlaceHolder="Deudas" Margin="0,5"/>
 
     <StackPanel Orientation="Horizontal" Margin="0,10">
-        <Button Content="Agregar" Click="AgregarCliente_Click" Width="100" Margin="5"/>
-        <Button Content="Editar" Click="EditarCliente_Click" Width="100" Margin="5"/>
-        <Button Content="Eliminar" Click="EliminarCliente_Click" Width="100" Margin="5"/>
+        <Button Style="{StaticResource AnimatedButtonStyle}" x:Name="AgregarClienteBtn" Content="Agregar" Click="AgregarCliente_Click" Width="100" Margin="5"/>
+        <Button x:Name="EditarClienteBtn" Content="Editar" Click="EditarCliente_Click" Width="100" Margin="5"/>
+        <Button x:Name="EliminarClienteBtn" Content="Eliminar" Click="EliminarCliente_Click" Width="100" Margin="5"/>
     </StackPanel>
 
 </StackPanel>

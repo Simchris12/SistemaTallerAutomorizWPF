@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,15 +11,14 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using SistemaTallerAutomorizWPF.ViewModels;
-using SistemaTallerAutomorizWPF.Models;
-using System.Collections.ObjectModel;
-using System.Data.SqlClient;
 using ClosedXML.Excel;
 using Microsoft.Win32;
+using SistemaTallerAutomorizWPF.Models;
+using SistemaTallerAutomorizWPF.ViewModels;
 
 namespace SistemaTallerAutomorizWPF.View
 {
@@ -244,8 +245,55 @@ namespace SistemaTallerAutomorizWPF.View
                 try
                 {
                     connection.Open();
+                    //Validar si el correo electrónico ya existe
+                    string checkQuery = "SELECT COUNT(*) FROM Clientes WHERE Email = @Email";
+                    SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
+                    checkCommand.Parameters.AddWithValue("@Email", EmailTextBox.Text.Trim());
+                    int count = Convert.ToInt32(checkCommand.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        MessageBox.Show("Ya existe un cliente con ese correo.");
+                        boton.IsEnabled = true;
+                        return;
+                    }
+
                     command.ExecuteNonQuery();
                     MessageBox.Show("Cliente agregado correctamente.");
+
+                    // Crear un SolidColorBrush mutable (si el botón no lo tiene aún)
+                    var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F0F0"));
+                    AgregarClienteBtn.Background = brush;
+
+                    // Animación suave al verde
+                    var animationToGreen = new ColorAnimation
+                    {
+                        To = (Color)ColorConverter.ConvertFromString("#9FA324"), // Verde SITAUTO
+                        Duration = TimeSpan.FromSeconds(0.5)
+                    };
+                    brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToGreen);
+
+                    // Desactivar el botón
+                    AgregarClienteBtn.Foreground = Brushes.White;
+                    AgregarClienteBtn.IsEnabled = false;
+
+                    // Esperar y luego restaurar visualmente
+                    Task.Delay(3000).ContinueWith(_ =>
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            var animationToGray = new ColorAnimation
+                            {
+                                To = (Color)ColorConverter.ConvertFromString("#F0F0F0"), // Color original
+                                Duration = TimeSpan.FromSeconds(1)
+                            };
+                            brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToGray);
+
+                            AgregarClienteBtn.Foreground = Brushes.Black;
+                            AgregarClienteBtn.IsEnabled = true;
+                        });
+                    });
+
 
                     // Limpiar campos
                     NombreTextBox.Text = "";
@@ -253,6 +301,9 @@ namespace SistemaTallerAutomorizWPF.View
                     VehiculoTextBox.Text = "";
                     OrdenesTextBox.Text = "";
                     DeudasTextBox.Text = "";
+
+                    //Vuelve el foco al primer campo
+                    NombreTextBox.Focus();
 
                     // Recargar datos
                     ClientsList.Clear();
