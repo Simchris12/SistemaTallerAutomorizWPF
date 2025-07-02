@@ -92,7 +92,7 @@ namespace SistemaTallerAutomorizWPF.View
         {
             using (SqlConnection connection = Connections.GetConnection())
             {
-                string query = "SELECT NameClient, Email, Vehicle, Orders, Debts FROM Clientes";
+                string query = "SELECT Id, NameClient, Email, Vehicle, Orders, Debts FROM Clientes";
                 SqlCommand command = new SqlCommand(query, connection);
 
                 try
@@ -104,6 +104,7 @@ namespace SistemaTallerAutomorizWPF.View
                     {
                         ClientsList.Add(new Client
                         {
+                            Id = Convert.ToInt32(reader["Id"]),
                             NameClient = reader["NameClient"].ToString(),
                             Email = reader["Email"].ToString(),
                             Vehicle = reader["Vehicle"].ToString(),
@@ -330,9 +331,18 @@ namespace SistemaTallerAutomorizWPF.View
             }
         }
 
-        private void EditarCliente_Click(object sender, RoutedEventArgs e)
+        private void ActivarModoEdicion_Click(object sender, RoutedEventArgs e)
         {
-            
+            ClientDataGrid.IsReadOnly = !ClientDataGrid.IsReadOnly;
+
+            if (ClientDataGrid.IsReadOnly)
+            {
+                EditarClienteBtn.Content = "Modo Edición";
+            }
+            else
+            {
+                EditarClienteBtn.Content = "Bloquear Edición";
+            }
         }
 
         private void EliminarCliente_Click(object sender, RoutedEventArgs e)
@@ -395,5 +405,36 @@ namespace SistemaTallerAutomorizWPF.View
                 DeudasTextBox.Text = cliente.Debts.ToString("0.00");
             }
         }
+
+        private void GuardarCambios_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var cliente in ClientsList)
+            {
+                using (SqlConnection connection = Connections.GetConnection())
+                {
+                    string updateQuery = "UPDATE Clientes SET NameClient = @NameClient, Vehicle = @Vehicle, Orders = @Orders, Debts = @Debts WHERE Id = @Id";
+
+                    SqlCommand command = new SqlCommand(updateQuery, connection);
+                    command.Parameters.AddWithValue("@Id", cliente.Id);
+                    command.Parameters.AddWithValue("@NameClient", cliente.NameClient);
+                    command.Parameters.AddWithValue("@Vehicle", cliente.Vehicle);
+                    command.Parameters.AddWithValue("@Orders", cliente.Orders);
+                    command.Parameters.AddWithValue("@Debts", cliente.Debts);
+
+                    try
+                    {
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error al actualizar el cliente {cliente.NameClient}: {ex.Message}");
+                    }
+                }
+            }
+
+            MessageBox.Show("Cambios guardados correctamente.");
+        }
+
     }
 }

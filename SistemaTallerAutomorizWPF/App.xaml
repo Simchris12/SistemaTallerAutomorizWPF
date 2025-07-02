@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="/Styles/UIColors.xaml"/>
                 <ResourceDictionary Source="/Styles/ButtonStyles.xaml"/>
                 <ResourceDictionary Source="/Styles/ButtonAnimation.xaml"/>
+                <ResourceDictionary Source="/Styles/EditarButtonStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Estilo para el PlaceholderTextBox -->
