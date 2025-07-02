@@ -13,5 +13,6 @@ namespace SistemaTallerAutomorizWPF.Models
         public string Vehicle { get; set; }
         public int Orders { get; set; }
         public decimal Debts { get; set; }
+        public DateTime FechaRegistro { get; set; } = DateTime.Now;
     }
 }

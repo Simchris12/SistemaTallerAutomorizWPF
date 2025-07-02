@@ -87,6 +87,7 @@
                 <ColumnDefinition Width="19*"/>
             </Grid.ColumnDefinitions>
 
+            <!--Crud CLientes-->
             <StackPanel Orientation="Vertical" Margin="10">
 
     <TextBlock Text="Formulario Cliente" FontWeight="Bold" FontSize="16" Margin="0,0,0,10" />
@@ -102,8 +103,11 @@
         <Button x:Name="EditarClienteBtn" Content="Editar" Click="EditarCliente_Click" Width="100" Margin="5"/>
         <Button x:Name="EliminarClienteBtn" Content="Eliminar" Click="EliminarCliente_Click" Width="100" Margin="5"/>
     </StackPanel>
+                
 
-</StackPanel>
+
+            </StackPanel>
+
             
             
         </Grid>
@@ -122,7 +126,17 @@
                     FontWeight="Bold" Cursor="Hand" 
                     BorderThickness="0" Width="150" Height="35"
                     Margin="0,0,10,0" Click="Button_Click_2" />
-                
+
+                <Button HorizontalAlignment="Right" 
+                        Content="Exportar Log (.txt)" 
+                        Background="#DEE33E" Foreground="Black"
+                        FontWeight="Bold" Cursor="Hand"
+                        Padding="15,5"
+                        BorderThickness="0" Width="150" Height="35"
+                        Click="ExportarLogDiario_Click" 
+                        Margin="0,0,0,0"/>
+
+
             </StackPanel>
 
             <!-- Tabla de clientes -->

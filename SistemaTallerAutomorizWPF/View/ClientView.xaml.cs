@@ -19,6 +19,7 @@ using ClosedXML.Excel;
 using Microsoft.Win32;
 using SistemaTallerAutomorizWPF.Models;
 using SistemaTallerAutomorizWPF.ViewModels;
+using System.IO;
 
 namespace SistemaTallerAutomorizWPF.View
 {
@@ -76,6 +77,13 @@ namespace SistemaTallerAutomorizWPF.View
         private void Button_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        //validación del Email
+        private bool EmailEsValido(string email)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(email,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         }
 
         public ObservableCollection<Client> ClientsList { get; set; }
@@ -305,9 +313,11 @@ namespace SistemaTallerAutomorizWPF.View
                     //Vuelve el foco al primer campo
                     NombreTextBox.Focus();
 
+
                     // Recargar datos
                     ClientsList.Clear();
                     LoadClientsFromDB();
+                    NombreTextBox.Focus();
                 }
                 catch (Exception ex)
                 {
@@ -320,20 +330,70 @@ namespace SistemaTallerAutomorizWPF.View
             }
         }
 
-        //validación del Email
-        private bool EmailEsValido(string email)
-        {
-            return System.Text.RegularExpressions.Regex.IsMatch(email,
-                @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        }
         private void EditarCliente_Click(object sender, RoutedEventArgs e)
         {
-
+            
         }
 
         private void EliminarCliente_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void ExportarLogDiario_Click(object sender, RoutedEventArgs e)
+        {
+            var hoy = DateTime.Today;
+            var clientesDelDia = ClientsList.Where(c => c.FechaRegistro.Date == hoy).ToList();
+
+            if (clientesDelDia.Count == 0)
+            {
+                MessageBox.Show("No hay clientes registrados hoy para exportar.");
+                return;
+            }
+
+            SaveFileDialog saveDialog = new SaveFileDialog
+            {
+                Filter = "Archivo de texto (*.txt)|*.txt",
+                Title = "Exportar log diario",
+                FileName = $"LogClientes_{DateTime.Now:yyyyMMdd}.txt"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                var lineas = new List<string>();
+
+                // Encabezado bonito
+                lineas.Add("===============================================");
+                lineas.Add($"      LOG DE CLIENTES - {DateTime.Now:dd/MM/yyyy}");
+                lineas.Add("===============================================");
+                lineas.Add("");
+
+                foreach (var c in clientesDelDia)
+                {
+                    lineas.Add($"[📅 {c.FechaRegistro:HH:mm:ss}] Cliente agregado:");
+                    lineas.Add($"  🔹 Nombre:   {c.NameClient}");
+                    lineas.Add($"  🔹 Email:    {c.Email}");
+                    lineas.Add($"  🔹 Vehículo: {c.Vehicle}");
+                    lineas.Add($"  🔹 Órdenes:  {c.Orders}");
+                    lineas.Add($"  🔹 Deuda:    {c.Debts:C}");
+                    lineas.Add("-----------------------------------------------");
+                }
+
+                File.WriteAllLines(saveDialog.FileName, lineas, Encoding.UTF8);
+                MessageBox.Show("Log diario exportado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void ClientDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ClientDataGrid.SelectedItem is Client cliente)
+            {
+                NombreTextBox.Text = cliente.NameClient;
+                EmailTextBox.Text = cliente.Email;
+                VehiculoTextBox.Text = cliente.Vehicle;
+                OrdenesTextBox.Text = cliente.Orders.ToString();
+                DeudasTextBox.Text = cliente.Debts.ToString("0.00");
+            }
         }
     }
 }
