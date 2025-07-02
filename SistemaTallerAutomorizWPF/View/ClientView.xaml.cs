@@ -347,52 +347,177 @@ namespace SistemaTallerAutomorizWPF.View
 
         private void EliminarCliente_Click(object sender, RoutedEventArgs e)
         {
+            var seleccionados = ClientDataGrid.SelectedItems.Cast<Client>().ToList();
 
+            if (seleccionados == null || seleccionados.Count == 0)
+            {
+                MessageBox.Show("Selecciona al menos un cliente para eliminar.", "Aviso", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string mensaje = seleccionados.Count == 1
+                ? $"¿Seguro que deseas eliminar a {seleccionados[0].NameClient}?"
+                : $"¿Seguro que deseas eliminar estos {seleccionados.Count} clientes?";
+
+            var confirm = MessageBox.Show(mensaje, "Confirmar eliminación", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (confirm != MessageBoxResult.Yes)
+                return;
+
+            using (SqlConnection connection = Connections.GetConnection())
+            {
+                try
+                {
+                    connection.Open();
+                    foreach (var cliente in seleccionados)
+                    {
+                        string query = "DELETE FROM Clientes WHERE Id = @Id";
+                        SqlCommand command = new SqlCommand(query, connection);
+                        command.Parameters.AddWithValue("@Id", cliente.Id);
+                        command.ExecuteNonQuery();
+
+                        // ✅ Guardar eliminación en el log diario
+                        string nombreLog = $"LogClientes_{DateTime.Today:yyyy-MM-dd}.txt";
+                        string rutaLogs = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+
+                        if (!Directory.Exists(rutaLogs))
+                            Directory.CreateDirectory(rutaLogs);
+
+                        string rutaLogFinal = System.IO.Path.Combine(rutaLogs, nombreLog);
+                        string logEliminado = $"[{DateTime.Now:HH:mm:ss}] [ELIMINADO] {cliente.NameClient}, {cliente.Email}, {cliente.Vehicle}, Órdenes: {cliente.Orders}, Deuda: {cliente.Debts:C}";
+
+                        File.AppendAllText(rutaLogFinal, logEliminado + Environment.NewLine);
+                    }
+
+                    // ✅ Animación visual en el botón
+                    Button boton = (Button)sender;
+                    var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F0F0"));
+                    boton.Background = brush;
+
+                    var animationToRed = new ColorAnimation
+                    {
+                        To = (Color)ColorConverter.ConvertFromString("#FFCDD2"), // rojo suave
+                        Duration = TimeSpan.FromSeconds(0.4)
+                    };
+                    brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToRed);
+
+                    Task.Delay(3000).ContinueWith(_ =>
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            var backToGray = new ColorAnimation
+                            {
+                                To = (Color)ColorConverter.ConvertFromString("#F0F0F0"),
+                                Duration = TimeSpan.FromSeconds(0.5)
+                            };
+                            brush.BeginAnimation(SolidColorBrush.ColorProperty, backToGray);
+                        });
+                    });
+
+                    // ✅ Actualizar el listado
+                    ClientsList.Clear();
+                    LoadClientsFromDB();
+
+                    MessageBox.Show("Cliente(s) eliminado(s) correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al eliminar cliente(s): " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void ExportarLogDiario_Click(object sender, RoutedEventArgs e)
         {
-            var hoy = DateTime.Today;
-            var clientesDelDia = ClientsList.Where(c => c.FechaRegistro.Date == hoy).ToList();
-
-            if (clientesDelDia.Count == 0)
+            // Obtener la fecha seleccionada del DatePicker
+            if (FechaLogDatePicker.SelectedDate is not DateTime fechaSeleccionada)
             {
-                MessageBox.Show("No hay clientes registrados hoy para exportar.");
+                MessageBox.Show("Selecciona una fecha válida para exportar.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
+            string nombreArchivo = $"LogClientes_{fechaSeleccionada:yyyy-MM-dd}.txt";
+            string rutaArchivo = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs", nombreArchivo);
+
+            if (!File.Exists(rutaArchivo))
+            {
+                MessageBox.Show("No hay log guardado para esa fecha.", "Sin datos", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var todasLasLineas = File.ReadAllLines(rutaArchivo).ToList();
+
+            // Clasificamos las entradas por tipo
+            var agregados = new List<string>();
+            var modificados = new List<string>();
+            var eliminados = new List<string>();
+
+            foreach (var linea in todasLasLineas)
+            {
+                if (linea.Contains("[AGREGADO]"))
+                    agregados.Add(linea);
+                else if (linea.Contains("[MODIFICADO]"))
+                    modificados.Add(linea);
+                else if (linea.Contains("[ELIMINADO]"))
+                    eliminados.Add(linea);
+            }
+
+            // Si no se van a incluir los eliminados, los quitamos
+            if (IncluirEliminadosCheckBox.IsChecked != true)
+                eliminados.Clear();
+
+            // Validar que haya algo que exportar
+            if (agregados.Count == 0 && modificados.Count == 0 && eliminados.Count == 0)
+            {
+                MessageBox.Show("No hay datos para exportar ese día.");
+                return;
+            }
+
+            // Construcción del contenido final
+            var contenidoFinal = new List<string>
+    {
+        "===============================================",
+        $"      LOG DE CLIENTES - {fechaSeleccionada:dd/MM/yyyy}",
+        "===============================================",
+        ""
+    };
+
+            if (agregados.Any())
+            {
+                contenidoFinal.Add("➡️ CLIENTES AGREGADOS:");
+                contenidoFinal.AddRange(agregados);
+                contenidoFinal.Add("");
+            }
+
+            if (modificados.Any())
+            {
+                contenidoFinal.Add("🔁 CLIENTES MODIFICADOS:");
+                contenidoFinal.AddRange(modificados);
+                contenidoFinal.Add("");
+            }
+
+            if (eliminados.Any())
+            {
+                contenidoFinal.Add("❌ CLIENTES ELIMINADOS:");
+                contenidoFinal.AddRange(eliminados);
+                contenidoFinal.Add("");
+            }
+
+            // Guardar
             SaveFileDialog saveDialog = new SaveFileDialog
             {
                 Filter = "Archivo de texto (*.txt)|*.txt",
                 Title = "Exportar log diario",
-                FileName = $"LogClientes_{DateTime.Now:yyyyMMdd}.txt"
+                FileName = $"LogClientes_{fechaSeleccionada:yyyyMMdd}.txt"
             };
 
             if (saveDialog.ShowDialog() == true)
             {
-                var lineas = new List<string>();
-
-                // Encabezado bonito
-                lineas.Add("===============================================");
-                lineas.Add($"      LOG DE CLIENTES - {DateTime.Now:dd/MM/yyyy}");
-                lineas.Add("===============================================");
-                lineas.Add("");
-
-                foreach (var c in clientesDelDia)
-                {
-                    lineas.Add($"[📅 {c.FechaRegistro:HH:mm:ss}] Cliente agregado:");
-                    lineas.Add($"  🔹 Nombre:   {c.NameClient}");
-                    lineas.Add($"  🔹 Email:    {c.Email}");
-                    lineas.Add($"  🔹 Vehículo: {c.Vehicle}");
-                    lineas.Add($"  🔹 Órdenes:  {c.Orders}");
-                    lineas.Add($"  🔹 Deuda:    {c.Debts:C}");
-                    lineas.Add("-----------------------------------------------");
-                }
-
-                File.WriteAllLines(saveDialog.FileName, lineas, Encoding.UTF8);
-                MessageBox.Show("Log diario exportado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                File.WriteAllLines(saveDialog.FileName, contenidoFinal, Encoding.UTF8);
+                MessageBox.Show("Log exportado correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
+
 
         private void ClientDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

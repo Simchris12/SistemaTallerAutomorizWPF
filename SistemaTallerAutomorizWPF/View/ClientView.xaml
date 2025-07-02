@@ -8,6 +8,7 @@
              xmlns:oxy="http://oxyplot.org/wpf" 
              xmlns:viewmodels="clr-namespace:SistemaTallerAutomorizWPF.ViewModels" 
              xmlns:cc="clr-namespace:SistemaTallerAutomorizWPF.CustomControls"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              d:DataContext="{d:DesignInstance Type=viewmodels:ClientesViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="700" d:DesignWidth="1300">
@@ -128,16 +129,31 @@
                     BorderThickness="0" Width="150" Height="35"
                     Margin="0,0,10,0" Click="Button_Click_2" />
 
+                <!-- DatePicker para elegir la fecha del log -->
+                <DatePicker x:Name="FechaLogDatePicker"
+                SelectedDate="{x:Static sys:DateTime.Today}"
+                Width="160" Height="35"
+                Margin="0,0,10,0"
+                VerticalAlignment="Center"
+                FontFamily="Montserrat"
+                FontSize="13"/>
+
+                <!-- CheckBox para incluir eliminados -->
+                <CheckBox x:Name="IncluirEliminadosCheckBox"
+              Content="Incluir eliminados"
+              VerticalAlignment="Center"
+              FontFamily="Montserrat"
+              FontSize="13"
+              Margin="0,0,10,0"/>
+
+                <!-- Botón de exportar -->
                 <Button HorizontalAlignment="Right" 
-                        Content="Exportar Log (.txt)" 
-                        Background="#DEE33E" Foreground="Black"
-                        FontWeight="Bold" Cursor="Hand"
-                        Padding="15,5"
-                        BorderThickness="0" Width="150" Height="35"
-                        Click="ExportarLogDiario_Click" 
-                        Margin="0,0,0,0"/>
-
-
+            Content="Exportar Log Diario (.txt)" 
+            Background="#DEE33E" Foreground="Black"
+            FontWeight="Bold" Cursor="Hand"
+            Padding="15,5"
+            BorderThickness="0" Width="170" Height="35"
+            Click="ExportarLogDiario_Click" />
             </StackPanel>
 
             <!-- Tabla de clientes -->
