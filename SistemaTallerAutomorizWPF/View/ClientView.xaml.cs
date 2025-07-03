@@ -31,9 +31,9 @@ namespace SistemaTallerAutomorizWPF.View
         public ClientView()
         {
             InitializeComponent();
-                ClientsList = new ObservableCollection<Client>();
-                ClientDataGrid.ItemsSource = ClientsList;
-                LoadClientsFromDB();
+            ClientsList = new ObservableCollection<Client>();
+            ClientDataGrid.ItemsSource = ClientsList;
+            LoadClientsFromDB();
         }
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -549,32 +549,53 @@ namespace SistemaTallerAutomorizWPF.View
             {
                 using (SqlConnection connection = Connections.GetConnection())
                 {
-                    string updateQuery = "UPDATE Clientes SET NameClient = @NameClient, Vehicle = @Vehicle, Orders = @Orders, Debts = @Debts WHERE Id = @Id";
-
-                    SqlCommand command = new SqlCommand(updateQuery, connection);
-                    command.Parameters.AddWithValue("@Id", cliente.Id);
-                    command.Parameters.AddWithValue("@NameClient", cliente.NameClient);
-                    command.Parameters.AddWithValue("@Vehicle", cliente.Vehicle);
-                    command.Parameters.AddWithValue("@Orders", cliente.Orders);
-                    command.Parameters.AddWithValue("@Debts", cliente.Debts);
-
                     try
                     {
                         connection.Open();
-                        command.ExecuteNonQuery();
 
-                        // ✅ Guardar modificación en el log diario
-                        string nombreLog = $"LogClientes_{DateTime.Today:yyyy-MM-dd}.txt";
-                        string rutaLogs = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+                        // Obtener datos actuales del cliente en la BD
+                        string selectQuery = "SELECT NameClient, Vehicle, Orders, Debts FROM Clientes WHERE Id = @Id";
+                        SqlCommand selectCommand = new SqlCommand(selectQuery, connection);
+                        selectCommand.Parameters.AddWithValue("@Id", cliente.Id);
 
-                        if (!Directory.Exists(rutaLogs))
-                            Directory.CreateDirectory(rutaLogs);
+                        SqlDataReader reader = selectCommand.ExecuteReader();
 
-                        string rutaLogFinal = System.IO.Path.Combine(rutaLogs, nombreLog);
-                        string logModificado = $"[{DateTime.Now:HH:mm:ss}] [MODIFICADO] {cliente.NameClient}, {cliente.Email}, {cliente.Vehicle}, Órdenes: {cliente.Orders}, Deuda: {cliente.Debts:C}";
+                        if (reader.Read())
+                        {
+                            string nameBD = reader["NameClient"].ToString();
+                            string vehicleBD = reader["Vehicle"].ToString();
+                            int ordersBD = Convert.ToInt32(reader["Orders"]);
+                            decimal debtsBD = Convert.ToDecimal(reader["Debts"]);
 
-                        File.AppendAllText(rutaLogFinal, logModificado + Environment.NewLine);
+                            reader.Close(); // ¡Importante cerrarlo antes de usar otro comando!
 
+                            // Comparar con valores en pantalla
+                            if (cliente.NameClient != nameBD ||
+                                cliente.Vehicle != vehicleBD ||
+                                cliente.Orders != ordersBD ||
+                                cliente.Debts != debtsBD)
+                            {
+                                // Sí hubo cambio, entonces hacemos el update
+                                string updateQuery = "UPDATE Clientes SET NameClient = @NameClient, Vehicle = @Vehicle, Orders = @Orders, Debts = @Debts WHERE Id = @Id";
+                                SqlCommand updateCommand = new SqlCommand(updateQuery, connection);
+                                updateCommand.Parameters.AddWithValue("@Id", cliente.Id);
+                                updateCommand.Parameters.AddWithValue("@NameClient", cliente.NameClient);
+                                updateCommand.Parameters.AddWithValue("@Vehicle", cliente.Vehicle);
+                                updateCommand.Parameters.AddWithValue("@Orders", cliente.Orders);
+                                updateCommand.Parameters.AddWithValue("@Debts", cliente.Debts);
+
+                                updateCommand.ExecuteNonQuery();
+
+                                // Guardar en el log como MODIFICADO
+                                string nombreLog = $"LogClientes_{DateTime.Today:yyyy-MM-dd}.txt";
+                                string rutaLogs = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+                                if (!Directory.Exists(rutaLogs)) Directory.CreateDirectory(rutaLogs);
+
+                                string rutaLogFinal = System.IO.Path.Combine(rutaLogs, nombreLog);
+                                string logModificado = $"[{DateTime.Now:HH:mm:ss}] [MODIFICADO] {cliente.NameClient}, {cliente.Email}, {cliente.Vehicle}, Órdenes: {cliente.Orders}, Deuda: {cliente.Debts:C}";
+                                File.AppendAllText(rutaLogFinal, logModificado + Environment.NewLine);
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -583,8 +604,7 @@ namespace SistemaTallerAutomorizWPF.View
                 }
             }
 
-            MessageBox.Show("Cambios guardados correctamente.");
+            MessageBox.Show("Cambios guardados correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
     }
 }

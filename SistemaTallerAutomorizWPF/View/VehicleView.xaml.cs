@@ -24,5 +24,20 @@ namespace SistemaTallerAutomorizWPF.View
         {
             InitializeComponent();
         }
+
+        private void AgregarVehiculoBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void EditarVehiculoBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void EliminarVehiculoBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
