@@ -177,7 +177,7 @@ namespace SistemaTallerAutomorizWPF.View
                         worksheet.RangeUsed().Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
                         //formato de moneda para la columna de deudas
-                        worksheet.Column(5).Style.NumberFormat.Format = "$#,##0.00";
+                        worksheet.Column(5).Style.NumberFormat.Format = "_(* #,##0_);_(* (#,##0);_(* \"-\"_);_(@_)";
 
                         //Filtros automaticos en los encabezados
                         worksheet.RangeUsed().SetAutoFilter();
@@ -302,6 +302,18 @@ namespace SistemaTallerAutomorizWPF.View
                             AgregarClienteBtn.IsEnabled = true;
                         });
                     });
+
+                    // ✅ Guardar agregado en el log diario
+                    string nombreLog = $"LogClientes_{DateTime.Today:yyyy-MM-dd}.txt";
+                    string rutaLogs = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+
+                    if (!Directory.Exists(rutaLogs))
+                        Directory.CreateDirectory(rutaLogs);
+
+                    string rutaLogFinal = System.IO.Path.Combine(rutaLogs, nombreLog);
+                    string logAgregado = $"[{DateTime.Now:HH:mm:ss}] [AGREGADO] {NombreTextBox.Text.Trim()}, {EmailTextBox.Text.Trim()}, {VehiculoTextBox.Text.Trim()}, Órdenes: {orders}, Deuda: {debts:C}";
+
+                    File.AppendAllText(rutaLogFinal, logAgregado + Environment.NewLine);
 
 
                     // Limpiar campos
@@ -550,6 +562,19 @@ namespace SistemaTallerAutomorizWPF.View
                     {
                         connection.Open();
                         command.ExecuteNonQuery();
+
+                        // ✅ Guardar modificación en el log diario
+                        string nombreLog = $"LogClientes_{DateTime.Today:yyyy-MM-dd}.txt";
+                        string rutaLogs = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+
+                        if (!Directory.Exists(rutaLogs))
+                            Directory.CreateDirectory(rutaLogs);
+
+                        string rutaLogFinal = System.IO.Path.Combine(rutaLogs, nombreLog);
+                        string logModificado = $"[{DateTime.Now:HH:mm:ss}] [MODIFICADO] {cliente.NameClient}, {cliente.Email}, {cliente.Vehicle}, Órdenes: {cliente.Orders}, Deuda: {cliente.Debts:C}";
+
+                        File.AppendAllText(rutaLogFinal, logModificado + Environment.NewLine);
+
                     }
                     catch (Exception ex)
                     {

@@ -123,7 +123,7 @@
             <!-- Encabezado -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 0 10">
                 <Button
-                    Content="Importar a Excel" Padding="15,5"
+                    Content="Exportar a Excel" Padding="15,5"
                     Background="#DEE33E" Foreground="Black"
                     FontWeight="Bold" Cursor="Hand" 
                     BorderThickness="0" Width="150" Height="35"
