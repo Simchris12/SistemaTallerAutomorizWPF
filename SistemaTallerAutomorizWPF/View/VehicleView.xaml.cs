@@ -219,5 +219,14 @@ namespace SistemaTallerAutomorizWPF.View
             VehicleDataGrid.ItemsSource = (System.Collections.IEnumerable)VehicleList;
         }
 
+        private void BuscarVehiculoBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var vm = DataContext as VehicleViewModel;
+            if (vm == null) return;
+
+            string filtro = BuscarTextBox.Text.Trim();
+            vm.FiltrarVehiculos(filtro);
+        }
+
     }
 }

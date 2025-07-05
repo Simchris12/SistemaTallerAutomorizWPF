@@ -20,9 +20,35 @@ namespace SistemaTallerAutomorizWPF.ViewModels
             LoadVehiculosFromDB();
         }
 
+        private List<Vehiculo> VehiculosBackup = new List<Vehiculo>();
+
+        public void FiltrarVehiculos(string filtro)
+        {
+            if (string.IsNullOrWhiteSpace(filtro))
+            {
+                VehiculosList.Clear();
+                foreach (var v in VehiculosBackup)
+                    VehiculosList.Add(v);
+            }
+            else
+            {
+                var filtroLower = filtro.ToLower();
+
+                var filtrados = VehiculosBackup.Where(v =>
+                    (v.NombreCliente != null && v.NombreCliente.ToLower().Contains(filtroLower)) ||
+                    (v.Placa != null && v.Placa.ToLower().Contains(filtroLower))
+                ).ToList();
+
+                VehiculosList.Clear();
+                foreach (var v in filtrados)
+                    VehiculosList.Add(v);
+            }
+        }
+
         private void LoadVehiculosFromDB()
         {
             VehiculosList.Clear();
+            VehiculosBackup.Clear();
 
             using (SqlConnection connection = Connections.GetConnection())
             {
@@ -47,7 +73,7 @@ namespace SistemaTallerAutomorizWPF.ViewModels
 
                     while (reader.Read())
                     {
-                        VehiculosList.Add(new Vehiculo
+                        var vehiculo = new Vehiculo
                         {
                             ClienteId = Convert.ToInt32(reader["ClienteId"]),
                             NombreCliente = reader["NombreCliente"].ToString(),
@@ -56,7 +82,9 @@ namespace SistemaTallerAutomorizWPF.ViewModels
                             Placa = reader["Placa"] == DBNull.Value ? null : reader["Placa"].ToString(),
                             Color = reader["Color"] == DBNull.Value ? null : reader["Color"].ToString(),
                             FechaRegistro = reader["FechaRegistro"] == DBNull.Value ? null : (DateTime?)Convert.ToDateTime(reader["FechaRegistro"])
-                        });
+                        };
+                        VehiculosList.Add(vehiculo);
+                        VehiculosBackup.Add(vehiculo);
                     }
 
                     reader.Close();
