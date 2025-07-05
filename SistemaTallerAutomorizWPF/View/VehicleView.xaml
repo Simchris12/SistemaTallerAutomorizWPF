@@ -9,25 +9,41 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <!-- Buscador -->
             <RowDefinition Height="*" />
+            <!-- DataGrid -->
             <RowDefinition Height="*" />
-            <RowDefinition Height="auto"/>
+            <!-- Formulario -->
+            <RowDefinition Height="Auto"/>
+            <!-- Botones -->
         </Grid.RowDefinitions>
+
+        <!-- 🔍 Filtro de búsqueda -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 10" HorizontalAlignment="Right">
+            <cc:PlaceHolderforTextBox x:Name="BuscarTextBox"
+                                   Width="200"
+                                   Text="Buscar por dueño o placa"
+                                   Margin="0 5 10 0"/>
+            <Button Content="Buscar"
+                Width="100"
+                Style="{StaticResource AnimatedButtonStyle}"
+                Click="BuscarVehiculoBtn_Click"/>
+        </StackPanel>
 
         <!-- 🧾 DataGrid con lista de vehículos -->
         <DataGrid x:Name="VehicleDataGrid"
-          Grid.Row="0"
-          AutoGenerateColumns="False"
-          IsReadOnly="True"
-          CanUserAddRows="False"
-          SelectionMode="Single"
-          Margin="0 0 0 10"
-          HeadersVisibility="Column"
-          ColumnHeaderHeight="35"
-          FontSize="13"
-          SelectionChanged="VehicleDataGrid_SelectionChanged"
-          ItemsSource="{Binding VehiculosList}">
-            <!-- ESTA LÍNEA ES CLAVE -->
+              Grid.Row="1"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserAddRows="False"
+              SelectionMode="Single"
+              Margin="0 0 0 10"
+              HeadersVisibility="Column"
+              ColumnHeaderHeight="35"
+              FontSize="13"
+              SelectionChanged="VehicleDataGrid_SelectionChanged"
+              ItemsSource="{Binding VehiculosList}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Dueño" Binding="{Binding NombreCliente}" Width="*" />
                 <DataGridTextColumn Header="Marca" Binding="{Binding MarcaVehiculo}" Width="*" />
@@ -38,13 +54,13 @@
             </DataGrid.Columns>
         </DataGrid>
 
-
-        <Grid Grid.Row="1">
+        <!-- Formulario de datos -->
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -58,10 +74,10 @@
                        Margin="0,0,0,10"/>
 
                 <cc:PlaceHolderforTextBox x:Name="MarcaTextBox"
-                      Text="Marca del vehívulo"
-                      Width="250"
-                      Margin="5"/>
-                
+                                      Text="Marca del vehívulo"
+                                      Width="250"
+                                      Margin="5"/>
+
                 <cc:PlaceHolderforTextBox x:Name="ModeloTextBox"
                                       Text="Modelo del vehículo"
                                       Width="250"
@@ -82,32 +98,32 @@
                                       Width="250"
                                       Margin="5"/>
             </StackPanel>
-
-            <!-- Botones CRUD debajo -->
-            <StackPanel Grid.Row="1" Grid.Column="2"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Left"
-                    Margin="10 10 0 0">
-                <Button x:Name="AgregarVehiculoBtn"
-                    Content="Agregar"
-                    Width="100"
-                    Style="{StaticResource AnimatedButtonStyle}"
-                    Click="AgregarVehiculoBtn_Click"
-                    Margin="0 0 5 0"/>
-
-                <Button x:Name="EditarVehiculoBtn"
-                    Content="Editar"
-                    Width="100"
-                    Style="{StaticResource AnimatedButtonStyle}"
-                    Click="EditarVehiculoBtn_Click"
-                    Margin="0 0 5 0"/>
-
-                <Button x:Name="EliminarVehiculoBtn"
-                    Content="Eliminar"
-                    Width="100"
-                    Style="{StaticResource AnimatedButtonStyle}"
-                    Click="EliminarVehiculoBtn_Click"/>
-            </StackPanel>
         </Grid>
+
+        <!-- Botones CRUD -->
+        <StackPanel Grid.Row="3"
+                Orientation="Horizontal"
+                HorizontalAlignment="Left"
+                Margin="10 10 0 0">
+            <Button x:Name="AgregarVehiculoBtn"
+                Content="Agregar"
+                Width="100"
+                Style="{StaticResource AnimatedButtonStyle}"
+                Click="AgregarVehiculoBtn_Click"
+                Margin="0 0 5 0"/>
+
+            <Button x:Name="EditarVehiculoBtn"
+                Content="Editar"
+                Width="100"
+                Style="{StaticResource AnimatedButtonStyle}"
+                Click="EditarVehiculoBtn_Click"
+                Margin="0 0 5 0"/>
+
+            <Button x:Name="EliminarVehiculoBtn"
+                Content="Eliminar"
+                Width="100"
+                Style="{StaticResource AnimatedButtonStyle}"
+                Click="EliminarVehiculoBtn_Click"/>
+        </StackPanel>
     </Grid>
 </UserControl>
