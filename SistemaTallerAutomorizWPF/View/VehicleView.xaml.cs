@@ -19,6 +19,10 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using SistemaTallerAutomorizWPF.Models;
 using SistemaTallerAutomorizWPF.Repositories;
 using SistemaTallerAutomorizWPF.ViewModels;
+using ClosedXML.Excel;
+using Microsoft.Win32;
+using System.Linq;
+using System.Text;
 
 namespace SistemaTallerAutomorizWPF.View
 {
@@ -228,5 +232,74 @@ namespace SistemaTallerAutomorizWPF.View
             vm.FiltrarVehiculos(filtro);
         }
 
+        private void ExportarExcelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var vm = DataContext as VehicleViewModel;
+            if (vm == null) return;
+
+            if (vm.VehiculosList == null || vm.VehiculosList.Count == 0)
+            {
+                MessageBox.Show("No hay vehículos para exportar.", "Atención", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var saveFileDialog = new SaveFileDialog
+            {
+                Filter = "Archivos Excel (*.xlsx)|*.xlsx",
+                FileName = "Vehiculos Exportados.xlsx"
+            };
+
+            if (saveFileDialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Vehículos");
+
+                    // Encabezados
+                    worksheet.Cell(1, 1).Value = "Dueño";
+                    worksheet.Cell(1, 2).Value = "Marca";
+                    worksheet.Cell(1, 3).Value = "Año";
+                    worksheet.Cell(1, 4).Value = "Placa";
+                    worksheet.Cell(1, 5).Value = "Color";
+                    worksheet.Cell(1, 6).Value = "Fecha Registro";
+
+                    // Agregar datos
+                    int fila = 2;
+                    foreach (var v in vm.VehiculosList)
+                    {
+                        worksheet.Cell(fila, 1).Value = v.NombreCliente;
+                        worksheet.Cell(fila, 2).Value = v.MarcaVehiculo;
+                        worksheet.Cell(fila, 3).Value = v.Anio;
+                        worksheet.Cell(fila, 4).Value = v.Placa;
+                        worksheet.Cell(fila, 5).Value = v.Color;
+                        worksheet.Cell(fila, 6).Value = v.FechaRegistro?.ToString("dd/MM/yyyy") ?? "";
+                        fila++;
+                    }
+
+                    // Formato encabezados: negrita, fondo gris claro
+                    var headerRange = worksheet.Range(1, 1, 1, 6);
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+                    // Autoajustar columnas
+                    worksheet.Columns().AdjustToContents();
+
+                    // Agregar autofiltros
+                    worksheet.Range(1, 1, fila - 1, 6).SetAutoFilter();
+
+                    // Guardar archivo
+                    workbook.SaveAs(saveFileDialog.FileName);
+                }
+
+                MessageBox.Show("Exportación a Excel exitosa.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al exportar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
