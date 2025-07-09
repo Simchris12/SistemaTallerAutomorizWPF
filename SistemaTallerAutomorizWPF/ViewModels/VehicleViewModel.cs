@@ -96,5 +96,9 @@ namespace SistemaTallerAutomorizWPF.ViewModels
             }
         }
 
+        internal void RecargarVehiculos()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

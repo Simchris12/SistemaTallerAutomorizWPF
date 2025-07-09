@@ -30,6 +30,7 @@
                 Style="{StaticResource AnimatedButtonStyle}"
                 Click="BuscarVehiculoBtn_Click"/>
         </StackPanel>
+        
 
         <!-- 🧾 DataGrid con lista de vehículos -->
         <DataGrid x:Name="VehicleDataGrid"
@@ -74,31 +75,48 @@
                        Margin="0,0,0,10"/>
 
                 <cc:PlaceHolderforTextBox x:Name="MarcaTextBox"
-                                      Text="Marca del vehívulo"
+                                      PlaceHolder="Marca del vehívulo"
                                       Width="250"
                                       Margin="5"/>
 
                 <cc:PlaceHolderforTextBox x:Name="ModeloTextBox"
-                                      Text="Modelo del vehículo"
+                                      PlaceHolder="Modelo del vehículo"
                                       Width="250"
                                       Margin="5" TextChanged="MarcaTextBox_TextChanged"/>
 
                 <cc:PlaceHolderforTextBox x:Name="AñoTextBox"
-                                      Text="Año"
+                                      PlaceHolder="Año"
                                       Width="250"
                                       Margin="5" TextChanged="AñoTextBox_TextChanged"/>
 
                 <cc:PlaceHolderforTextBox x:Name="PlacaTextBox"
-                                      Text="Placa"
+                                      PlaceHolder="Placa"
                                       Width="250"
                                       Margin="5"/>
 
                 <cc:PlaceHolderforTextBox x:Name="ColorTextBox"
-                                      Text="Color"
+                                      PlaceHolder="Color"
                                       Width="250"
                                       Margin="5"/>
             </StackPanel>
+
+            <StackPanel Grid.Row="0" Grid.Column="1" Margin="20 0 0 0">
+                <TextBlock Text="💡 Tips de llenado"
+               FontWeight="Bold"
+               FontSize="16"
+               Margin="0 0 0 10"/>
+
+                <TextBlock Text="Marca: Debe coincidir con un cliente ya registrado"
+               TextWrapping="Wrap" Margin="0 0 0 5"/>
+                <TextBlock Text="Año: Entre 1900 y el actual"
+               TextWrapping="Wrap" Margin="0 0 0 5"/>
+                <TextBlock Text="Placa: Formato A1234567" 
+               TextWrapping="Wrap" Margin="0 0 0 5"/>
+            </StackPanel>
+
+
         </Grid>
+
 
         <!-- Botones CRUD -->
         <StackPanel Grid.Row="3"
@@ -118,7 +136,6 @@
                     Style="{StaticResource AnimatedButtonStyle}"
                     Click="EditarVehiculoBtn_Click"
                     Margin="0 0 5 0"/>
-
             <Button x:Name="EliminarVehiculoBtn"
                     Content="Eliminar"
                     Width="100"

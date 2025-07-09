@@ -4,9 +4,49 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SistemaTallerAutomorizWPF.View"
+             xmlns:cc="clr-namespace:SistemaTallerAutomorizWPF.CustomControls"
+             xmlns:conv="clr-namespace:SistemaTallerAutomorizWPF.CustomControls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+
+
+    <UserControl.Resources>
+        <conv:NullToBoolConverter x:Key="NullToBoolConverter"/>
+    </UserControl.Resources>
+
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Botones -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0 0 0 10">
+            <Button Content="Agregar Orden"
+            Width="150"
+            Click="AgregarOrdenBtn_Click"
+            IsEnabled="{Binding ClienteSeleccionado, Converter={StaticResource NullToBoolConverter}}" />
+        </StackPanel>
+
+
+        <!-- Tabla -->
+        <DataGrid ItemsSource="{Binding ServiciosList}"
+                  SelectedItem="{Binding ClienteSeleccionado, Mode=TwoWay}"
+                  AutoGenerateColumns="False"
+                  Grid.Row="1">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Cliente" Binding="{Binding NombreCliente}" Width="*" />
+                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*" />
+                <DataGridTextColumn Header="Vehículo" Binding="{Binding Vehiculo}" Width="*" />
+                <DataGridTextColumn Header="# Órdenes" Binding="{Binding OrdenesTotales}" Width="*" />
+                <DataGridTextColumn Header="Estado de las órdenes" Binding="{Binding EstadoUltimaOrden}" Width="auto" />
+                <DataGridTextColumn Header="Placa" Binding="{Binding Placa}" Width="*" />
+                <DataGridTextColumn Header="Fecha" Binding="{Binding FechaRegistro, StringFormat=dd/MM/yyyy}" Width="*" />
+                <DataGridTextColumn Header="Deuda" Binding="{Binding Deuda, StringFormat=C}" Width="*" />
+            </DataGrid.Columns>
+
+        </DataGrid>
     </Grid>
 </UserControl>

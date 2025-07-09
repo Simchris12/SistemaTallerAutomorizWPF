@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SistemaTallerAutomorizWPF.ViewModels;
 
 namespace SistemaTallerAutomorizWPF.View
 {
@@ -20,9 +21,24 @@ namespace SistemaTallerAutomorizWPF.View
     /// </summary>
     public partial class PartsView : UserControl
     {
+        private PartsViewModel viewModel;
+
         public PartsView()
         {
             InitializeComponent();
+            viewModel = new PartsViewModel();
+            DataContext = viewModel;
+            viewModel.CargarOrdenes();
+        }
+
+        private void BuscarBtn_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.FiltrarOrdenes(BuscarTextBox.Text);
+        }
+
+        private void BuscarTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            viewModel.FiltrarOrdenes(BuscarTextBox.Text);
         }
     }
 }

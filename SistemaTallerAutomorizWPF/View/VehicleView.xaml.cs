@@ -78,7 +78,7 @@ namespace SistemaTallerAutomorizWPF.View
 
             using (SqlConnection connection = Models.Connections.GetConnection())
             {
-                string query = @"INSERT INTO Vehiculos (ClienteId, Año, Placa, Color, FechaRegistro)
+                string query = @"INSERT INTO Vehiculos (ClienteId, Anio, Placa, Color, FechaRegistro)
                          VALUES (@ClienteId, @Anio, @Placa, @Color, @FechaRegistro)";
                 SqlCommand command = new SqlCommand(query, connection);
 
@@ -104,7 +104,7 @@ namespace SistemaTallerAutomorizWPF.View
 
                     // Asignar valores
                     command.Parameters.AddWithValue("@ClienteId", clienteId);
-                    command.Parameters.AddWithValue("@Año", anio);
+                    command.Parameters.AddWithValue("@Anio", anio);
                     command.Parameters.AddWithValue("@Placa", placa);
                     command.Parameters.AddWithValue("@Color", ColorTextBox.Text.Trim());
                     command.Parameters.AddWithValue("@FechaRegistro", DateTime.Now);
@@ -292,9 +292,41 @@ namespace SistemaTallerAutomorizWPF.View
 
                     // Guardar archivo
                     workbook.SaveAs(saveFileDialog.FileName);
-                }
 
-                MessageBox.Show("Exportación a Excel exitosa.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                    // Crear un SolidColorBrush mutable (si el botón no lo tiene aún)
+                    var brush = new SolidColorBrush((System.Windows.Media.Color)ColorConverter.ConvertFromString("#F0F0F0"));
+                    ExportarExcelBtn.Background = brush;
+
+                    // Animación suave al verde
+                    var animationToGreen = new ColorAnimation
+                    {
+                        To = (System.Windows.Media.Color)ColorConverter.ConvertFromString("#9FA324"), // Verde SITAUTO
+                        Duration = TimeSpan.FromSeconds(0.5)
+                    };
+                    brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToGreen);
+
+                    // Desactivar el botón
+                    ExportarExcelBtn.Foreground = Brushes.White;
+                    ExportarExcelBtn.IsEnabled = false;
+
+                    // Esperar y luego restaurar visualmente
+                    Task.Delay(3000).ContinueWith(_ =>
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            var animationToGray = new ColorAnimation
+                            {
+                                To = (System.Windows.Media.Color)ColorConverter.ConvertFromString("#F0F0F0"), // Color original
+                                Duration = TimeSpan.FromSeconds(1)
+                            };
+                            brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToGray);
+
+                            ExportarExcelBtn.Foreground = Brushes.Black;
+                            ExportarExcelBtn.IsEnabled = true;
+                        });
+                    });
+                    MessageBox.Show("Exportación a Excel exitosa.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             catch (Exception ex)
             {

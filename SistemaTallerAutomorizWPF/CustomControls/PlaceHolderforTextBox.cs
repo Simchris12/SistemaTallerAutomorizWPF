@@ -23,11 +23,22 @@ namespace SistemaTallerAutomorizWPF.CustomControls
 
         private bool _isPlaceHolderVisible = true;
 
+        //evento del PlaceHolder para que se muestre cuando el TextBox este vacio
         public PlaceHolderforTextBox()
         {
             Loaded += PlaceHolderforTextBox_Loaded;
             GotFocus += RemovePlaceholder;
             LostFocus += ShowPlaceholder;
+            TextChanged += CheckIfTextIsCleared;
+        }
+
+        //mètodo para verificar si el TextBox esta vacio y mostrar el PlaceHolder
+        private void CheckIfTextIsCleared(object sender, TextChangedEventArgs e)
+        {
+            if (!_isPlaceHolderVisible && string.IsNullOrWhiteSpace(Text) && !IsFocused)
+            {
+                ShowPlaceholder(null, null);
+            }
         }
 
         private void PlaceHolderforTextBox_Loaded(object sender, RoutedEventArgs e)
