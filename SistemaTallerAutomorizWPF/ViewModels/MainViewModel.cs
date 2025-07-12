@@ -187,6 +187,7 @@ namespace SistemaTallerAutomorizWPF.ViewModels
             Icon = IconChar.TruckRampBox;
         }
 
+
         private void LoadCurrentUserData()
         {
             var identity = Thread.CurrentPrincipal?.Identity;

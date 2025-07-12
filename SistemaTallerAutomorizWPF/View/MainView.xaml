@@ -157,7 +157,6 @@
 
                     <RadioButton Style="{StaticResource menuButton}"
                                  Tag="{StaticResource Color1}"
-                                 IsEnabled="{Binding IsAdmin}"
                                  Command="{Binding ShowEmployeesViewCommand}">
                         <StackPanel Orientation="Horizontal">
                             <fa:IconImage Icon="UserGear" Style="{StaticResource menuButtonIcon}"/>
@@ -167,7 +166,6 @@
 
                     <RadioButton Style="{StaticResource menuButton}"
                                  Tag="{StaticResource Color1}"
-                                 IsEnabled="{Binding IsAdmin}"
                                  Command="{Binding ShowPaymentsViewCommand}">
                         <StackPanel Orientation="Horizontal">
                             <fa:IconImage Icon="Wallet" Style="{StaticResource menuButtonIcon}"/>
@@ -178,7 +176,6 @@
 
                     <RadioButton Style="{StaticResource menuButton}"
                                  Tag="{StaticResource Color1}"
-                                 IsEnabled="{Binding IsAdmin}"
                                  Command="{Binding ShowAppointmentsViewCommand}">
                         <StackPanel Orientation="Horizontal">
                             <fa:IconImage Icon="CalendarCheck" Style="{StaticResource menuButtonIcon}"/>
@@ -188,7 +185,6 @@
 
                     <RadioButton Style="{StaticResource menuButton}"
                                  Tag="{StaticResource Color1}"
-                                 IsEnabled="{Binding IsAdmin}"
                                  Command="{Binding ShowReportsViewCommand}">
                         <StackPanel Orientation="Horizontal">
                             <fa:IconImage Icon="FileAlt" Style="{StaticResource menuButtonIcon}"/>
@@ -198,7 +194,6 @@
                     
                     <RadioButton Style="{StaticResource menuButton}"
                                  Tag="{StaticResource Color1}"
-                                 IsEnabled="{Binding IsAdmin}"
                                  Command="{Binding ShowConfigViewCommand}">
                         <StackPanel Orientation="Horizontal">
                             <fa:IconImage Icon="Tools" Style="{StaticResource menuButtonIcon}"/>
