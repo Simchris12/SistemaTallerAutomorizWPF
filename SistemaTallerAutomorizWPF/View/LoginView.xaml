@@ -28,7 +28,7 @@
 
     <Border CornerRadius="12">
         <Border.Background>
-            <ImageBrush ImageSource="C:\Users\Christopher\Documents\Universidad\4to trimeste\Programación 2\ProyectoFinalP2\SistemaTallerAutomotrizWPF\SistemaTallerAutomorizWPF\Images\Wallpaper3.png"
+            <ImageBrush ImageSource="..\Images\Wallpaper3.png"
         Stretch="UniformToFill"/>
         </Border.Background>
         
@@ -139,7 +139,7 @@
                                     Orientation="Vertical"
                                     Margin="0,0,0,0">
 
-                    <Image Source="C:\Users\Christopher\Documents\Universidad\4to trimeste\Programación 2\ProyectoFinalP2\SistemaTallerAutomotrizWPF\SistemaTallerAutomorizWPF\Images\logo.png"
+                    <Image Source="..\Images\logo.png"
                                    Width="200" Height="200"/>
 
                     <TextBlock Text="SITAUTO"
@@ -180,7 +180,7 @@
                              Padding="25,0,0,0">
 
                         <TextBox.Background>
-                            <ImageBrush ImageSource="C:\Users\Christopher\Documents\Universidad\4to trimeste\Programación 2\ProyectoFinalP2\SistemaTallerAutomotrizWPF\SistemaTallerAutomorizWPF\Images\usericon.png"
+                            <ImageBrush ImageSource="..\Images\usericon.png"
                                         Stretch="Uniform"
                                         AlignmentX="Left"/>
                         </TextBox.Background>
