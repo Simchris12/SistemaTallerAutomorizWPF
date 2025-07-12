@@ -10,6 +10,8 @@ using SistemaTallerAutomorizWPF.ViewModel;
 using SistemaTallerAutomorizWPF.Repositories;
 using System.Net;
 using System.Security.Principal;
+using System.Data.SqlClient;
+using System.Windows;
 
 namespace SistemaTallerAutomorizWPF.ViewModels
 {
@@ -121,6 +123,42 @@ namespace SistemaTallerAutomorizWPF.ViewModels
         private void ExecuteRecoverPasswordCommand(String username, String email)
         {
             throw new NotImplementedException();
+        }
+
+        public UserModel GetUserByUsername(string username)
+        {
+            UserModel user = null;
+
+            using (SqlConnection connection = Connections.GetConnection())
+            {
+                string query = "SELECT Username, Name, Rol FROM [User] WHERE Username = @username";
+                SqlCommand cmd = new SqlCommand(query, connection);
+                cmd.Parameters.AddWithValue("@username", username);
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        user = new UserModel
+                        {
+                            Username = reader["Username"].ToString(),
+                            Name = reader["Name"].ToString(),
+                            Rol = reader["Rol"].ToString()
+                        };
+                    }
+
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al obtener usuario: " + ex.Message);
+                }
+            }
+
+            return user;
         }
     }
 }

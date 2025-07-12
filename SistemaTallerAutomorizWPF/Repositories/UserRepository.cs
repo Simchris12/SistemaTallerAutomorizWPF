@@ -53,13 +53,18 @@ namespace SistemaTallerAutomorizWPF.Repositories
         public UserModel GetByUsername(string Username)
         {
             UserModel user = null;
+
             using (var connection = GetConnection())
             using (var command = new Microsoft.Data.SqlClient.SqlCommand())
             {
                 connection.Open();
                 command.Connection = connection;
-                command.CommandText = "SELECT Id, Username, Name, LastName, Email FROM [User] WHERE Username = @username";
+
+                command.CommandText = @"SELECT Id, Username, Name, LastName, Email, Rol 
+                                FROM [User] WHERE Username = @username";
+
                 command.Parameters.Add("@username", SqlDbType.NVarChar).Value = Username;
+
                 using (var reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -68,14 +73,16 @@ namespace SistemaTallerAutomorizWPF.Repositories
                         {
                             Id = reader["Id"].ToString(),
                             Username = reader["Username"].ToString(),
-                            Password= String.Empty,
-                            Name= reader["Name"].ToString(),
+                            Password = string.Empty, // no traemos el password por seguridad
+                            Name = reader["Name"].ToString(),
                             LastName = reader["LastName"].ToString(),
                             Email = reader["Email"].ToString(),
+                            Rol = reader["Rol"].ToString()
                         };
                     }
                 }
             }
+
             return user;
         }
 

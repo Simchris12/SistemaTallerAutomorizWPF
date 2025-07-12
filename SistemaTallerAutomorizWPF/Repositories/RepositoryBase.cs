@@ -12,11 +12,11 @@ namespace SistemaTallerAutomorizWPF.Repositories
         private readonly String _connectionString;
         public RepositoryBase()
         {
-            _connectionString = "Server=(Local); Database=MVVMLogindb; Integrated Security=true";
+            _connectionString = "Server=(Local); Database=SITAUTODB; Integrated Security=true";
         }
         protected SqlConnection GetConnection()
         {
-            return new SqlConnection("Server=localhost;Database=MVVMLogindb;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;");
+            return new SqlConnection("Server=localhost;Database=SITAUTODB;Integrated Security=True;Encrypt=False;TrustServerCertificate=True;");
         }
     }
 }
