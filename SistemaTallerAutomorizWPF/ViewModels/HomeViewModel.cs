@@ -65,6 +65,17 @@ namespace SistemaTallerAutomorizWPF.ViewModels
             }
         }
 
+        private bool _isAdmin;
+        public bool IsAdmin
+        {
+            get => _isAdmin;
+            set
+            {
+                _isAdmin = value;
+                OnPropertyChanged(nameof(IsAdmin));
+            }
+        }
+
 
         public HomeViewModel()
         {

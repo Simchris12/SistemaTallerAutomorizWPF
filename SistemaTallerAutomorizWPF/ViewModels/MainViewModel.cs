@@ -35,6 +35,18 @@ namespace SistemaTallerAutomorizWPF.ViewModels
                 _currentUserAcconut = value;
                 OnPropertyChanged(nameof(CurrentUserAccount));
             }
+
+        }
+
+        private bool _isAdmin;
+        public bool IsAdmin
+        {
+            get => _isAdmin;
+            set
+            {
+                _isAdmin = value;
+                OnPropertyChanged(nameof(IsAdmin));
+            }
         }
 
         public ViewModelBase CurrentChildView
@@ -187,6 +199,10 @@ namespace SistemaTallerAutomorizWPF.ViewModels
                     CurrentUserAccount.UserName = user.Username;
                     CurrentUserAccount.DisplayName = $"{user.Name} {user.LastName}";
                     CurrentUserAccount.ProfilePicture = null;
+
+                    CurrentUserAccount.Rol = user.Rol;
+                    IsAdmin = user.Rol == "Admin";
+
                 }
                 else
                 {

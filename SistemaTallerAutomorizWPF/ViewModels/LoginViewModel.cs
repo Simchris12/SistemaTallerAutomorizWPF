@@ -93,6 +93,17 @@ namespace SistemaTallerAutomorizWPF.ViewModels
             RecoverPasswordCommand = new ViewModelCommand(p=> ExecuteRecoverPasswordCommand("",""));
         }
 
+        private bool _isAdmin;
+        public bool IsAdmin
+        {
+            get => _isAdmin;
+            set
+            {
+                _isAdmin = value;
+                OnPropertyChanged(nameof(IsAdmin));
+            }
+        }
+
         private bool CanExecuteLoginCommand(object obj)
         {
             bool ValidData;
