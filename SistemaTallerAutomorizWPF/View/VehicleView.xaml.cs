@@ -35,132 +35,155 @@ namespace SistemaTallerAutomorizWPF.View
         {
             InitializeComponent();
             DataContext = new VehicleViewModel();
-            ((VehicleViewModel)DataContext).CargarDatos(); // ✅ esta línea
+            ((VehicleViewModel)DataContext).CargarDatos();
+            ClienteComboBox.ItemsSource = ClientsList;
+
+            var viewModel = (VehicleViewModel)DataContext;
+            ClienteComboBox.ItemsSource = viewModel.ClientsList;
+
         }
 
 
-        // Aquí ↓↓↓ puedes pegarla si aún no la tienes:
+        // Lista de vehiculos
         public ObservableCollection<Vehicle> VehicleList { get; set; } = new ObservableCollection<Vehicle>();
+        // Lista de clientes
+        public ObservableCollection<Client> ClientsList { get; set; } = new ObservableCollection<Client>();
 
-    // Luego aquí irá el método LoadVehiculosFromDB}
 
 
-        private void AgregarVehiculoBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Button boton = (Button)sender;
-            boton.IsEnabled = false;
+    private void AgregarVehiculoBtn_Click(object sender, RoutedEventArgs e)
+    {
+    Button boton = (Button)sender;
+    boton.IsEnabled = false;
 
-            // Validación de campos
-            if (MarcaTextBox.IsPlaceHolderVisible || PlacaTextBox.IsPlaceHolderVisible ||
-                ColorTextBox.IsPlaceHolderVisible || ModeloTextBox.IsPlaceHolderVisible)
-            {
-                MessageBox.Show("Por favor, completa todos los campos obligatorios.");
-                boton.IsEnabled = true;
-                return;
-            }
+    // Validación de campos
+    if (MarcaTextBox.IsPlaceHolderVisible || PlacaTextBox.IsPlaceHolderVisible ||
+        ColorTextBox.IsPlaceHolderVisible || ModeloTextBox.IsPlaceHolderVisible)
+    {
+        MessageBox.Show("Por favor, completa todos los campos obligatorios.");
+        boton.IsEnabled = true;
+        return;
+    }
+
+    // Verificar si se ha seleccionado un cliente
+    if (ClienteComboBox.SelectedItem == null)
+    {
+        MessageBox.Show("Por favor, selecciona un cliente.");
+        boton.IsEnabled = true;
+        return;
+    }
+
+            int clienteId = (int)ClienteComboBox.SelectedValue;
 
             if (!int.TryParse(AñoTextBox.Text, out int anio) || anio < 1900 || anio > DateTime.Now.Year)
-            {
-                MessageBox.Show("Año inválido.");
-                boton.IsEnabled = true;
-                return;
-            }
+    {
+        MessageBox.Show("Año inválido.");
+        boton.IsEnabled = true;
+        return;
+    }
 
-            string placa = PlacaTextBox.Text.Trim().ToUpper();
+    string placa = PlacaTextBox.Text.Trim().ToUpper();
 
-            // Validar formato de placa dominicana básica
-            if (!System.Text.RegularExpressions.Regex.IsMatch(placa, @"^[A-Z]\d{7}$"))
-            {
-                MessageBox.Show("La placa debe tener el formato correcto (ej. A1234567).");
-                boton.IsEnabled = true;
-                return;
-            }
+    // Validar formato de placa dominicana básica
+    if (!System.Text.RegularExpressions.Regex.IsMatch(placa, @"^[A-Z]\d{7}$"))
+    {
+        MessageBox.Show("La placa debe tener el formato correcto (ej. A1234567).");
+        boton.IsEnabled = true;
+        return;
+    }
 
-            using (SqlConnection connection = Models.Connections.GetConnection())
-            {
-                string query = @"INSERT INTO Vehiculos (ClienteId, Anio, Placa, Color, FechaRegistro)
-                         VALUES (@ClienteId, @Anio, @Placa, @Color, @FechaRegistro)";
-                SqlCommand command = new SqlCommand(query, connection);
+    using (SqlConnection connection = Models.Connections.GetConnection())
+    {
+        string query = @"INSERT INTO Vehiculos (ClienteId, Anio, Placa, Color, FechaRegistro, Marca, Modelo)
+                         VALUES (@ClienteId, @Anio, @Placa, @Color, @FechaRegistro, @Marca, @Modelo)";
+        SqlCommand command = new SqlCommand(query, connection);
 
-                try
-                {
-                    connection.Open();
+        try
+        {
+            connection.Open();
 
                     // Buscar cliente que tenga la marca ingresada (relación por texto)
-                    string marcaBuscada = MarcaTextBox.Text.Trim();
-                    string queryCliente = "SELECT TOP 1 Id FROM Clientes WHERE Vehicle = @Marca";
-                    SqlCommand cmdCliente = new SqlCommand(queryCliente, connection);
-                    cmdCliente.Parameters.AddWithValue("@Marca", marcaBuscada);
-
-                    object clienteIdObj = cmdCliente.ExecuteScalar();
-                    if (clienteIdObj == null)
+                    if (ClienteComboBox.SelectedItem == null)
                     {
-                        MessageBox.Show("No se encontró un cliente con esa marca registrada.");
+                        MessageBox.Show("Por favor, selecciona un cliente.");
                         boton.IsEnabled = true;
                         return;
                     }
 
-                    int clienteId = Convert.ToInt32(clienteIdObj);
+                    var clienteSeleccionado = (Client)ClienteComboBox.SelectedItem;
+                    int clientId = clienteSeleccionado.Id;
 
-                    // Asignar valores
-                    command.Parameters.AddWithValue("@ClienteId", clienteId);
-                    command.Parameters.AddWithValue("@Anio", anio);
-                    command.Parameters.AddWithValue("@Placa", placa);
-                    command.Parameters.AddWithValue("@Color", ColorTextBox.Text.Trim());
-                    command.Parameters.AddWithValue("@FechaRegistro", DateTime.Now);
+                    int ClientId = ((Client)ClienteComboBox.SelectedItem).Id;
 
-                    command.ExecuteNonQuery();
-                    MessageBox.Show("Vehículo agregado correctamente.");
+                    // ✅ Validar si ya tiene un vehículo registrado
+                    string checkVehiculoQuery = "SELECT COUNT(*) FROM Vehiculos WHERE ClienteId = @ClienteId";
+            SqlCommand checkCmd = new SqlCommand(checkVehiculoQuery, connection);
+            checkCmd.Parameters.AddWithValue("@ClienteId", clienteId);
+            int countVehiculos = Convert.ToInt32(checkCmd.ExecuteScalar());
 
-                    // ✅ Animación del botón (verde suave)
-                    var brush = new SolidColorBrush((System.Windows.Media.Color)ColorConverter.ConvertFromString("#F0F0F0"));
-                    boton.Background = brush;
-
-                    var animationToGreen = new ColorAnimation
-                    {
-                        To = (System.Windows.Media.Color)ColorConverter.ConvertFromString("#9FA324"),
-                        Duration = TimeSpan.FromSeconds(0.4)
-                    };
-                    brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToGreen);
-
-                    Task.Delay(3000).ContinueWith(_ =>
-                    {
-                        Dispatcher.Invoke(() =>
-                        {
-                            var backToGray = new ColorAnimation
-                            {
-                                To = (System.Windows.Media.Color)ColorConverter.ConvertFromString("#F0F0F0"),
-                                Duration = TimeSpan.FromSeconds(0.5)
-                            };
-                            brush.BeginAnimation(SolidColorBrush.ColorProperty, backToGray);
-                            boton.IsEnabled = true;
-                        });
-                    });
-
-                    // Limpiar campos
-                    MarcaTextBox.Text = "";
-                    ModeloTextBox.Text = "";
-                    AñoTextBox.Text = "";
-                    PlacaTextBox.Text = "";
-                    ColorTextBox.Text = "";
-
-                    // Refrescar DataGrid
-                    LoadVehiculosFromDB();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error al agregar el vehículo: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    boton.IsEnabled = true;
-                }
+            if (countVehiculos > 0)
+            {
+                MessageBox.Show("Este cliente ya tiene un vehículo registrado.");
+                boton.IsEnabled = true;
+                return;
             }
+
+            // Asignar valores
+            command.Parameters.AddWithValue("@ClienteId", clienteId);
+            command.Parameters.AddWithValue("@Anio", anio);
+            command.Parameters.AddWithValue("@Placa", placa);
+            command.Parameters.AddWithValue("@Color", ColorTextBox.Text.Trim());
+            command.Parameters.AddWithValue("@FechaRegistro", DateTime.Now);
+            command.Parameters.AddWithValue("@Marca", MarcaTextBox.Text.Trim());
+            command.Parameters.AddWithValue("@Modelo", ModeloTextBox.Text.Trim());
+
+            command.ExecuteNonQuery();
+            MessageBox.Show("Vehículo agregado correctamente.");
+
+            // ✅ Animación del botón (verde suave)
+            var brush = new SolidColorBrush((System.Windows.Media.Color)ColorConverter.ConvertFromString("#F0F0F0"));
+            boton.Background = brush;
+
+            var animationToGreen = new ColorAnimation
+            {
+                To = (System.Windows.Media.Color)ColorConverter.ConvertFromString("#9FA324"),
+                Duration = TimeSpan.FromSeconds(0.4)
+            };
+            brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToGreen);
+
+            Task.Delay(3000).ContinueWith(_ =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    var backToGray = new ColorAnimation
+                    {
+                        To = (System.Windows.Media.Color)ColorConverter.ConvertFromString("#F0F0F0"),
+                        Duration = TimeSpan.FromSeconds(0.5)
+                    };
+                    brush.BeginAnimation(SolidColorBrush.ColorProperty, backToGray);
+                    boton.IsEnabled = true;
+                });
+            });
+
+            // Limpiar campos
+            MarcaTextBox.Text = "";
+            ModeloTextBox.Text = "";
+            AñoTextBox.Text = "";
+            PlacaTextBox.Text = "";
+            ColorTextBox.Text = "";
+
+            // Refrescar DataGrid
+            LoadVehiculosFromDB();
         }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Error al agregar el vehículo: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            boton.IsEnabled = true;
+        }
+    }
+}
 
         private void EditarVehiculoBtn_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void EliminarVehiculoBtn_Click(object sender, RoutedEventArgs e)
         {
 
         }
@@ -186,10 +209,18 @@ namespace SistemaTallerAutomorizWPF.View
 
             using (SqlConnection connection = Models.Connections.GetConnection())
             {
-                string query = @"SELECT V.Id, C.NameClient AS Dueno, C.Vehicle AS Marca,
-                         V.Anio, V.Placa, V.Color, V.FechaRegistro
-                         FROM Vehiculos V
-                         INNER JOIN Clientes C ON V.ClienteId = C.Id";
+                string query = @"SELECT 
+                                V.Id,
+                                C.Id AS ClienteId,
+                                C.NameClient AS NombreCliente,
+                                V.Marca AS MarcaVehiculo,
+                                V.Modelo,
+                                V.Anio,
+                                V.Placa,
+                                V.Color,
+                                V.FechaRegistro
+                            FROM Vehiculos V
+                            LEFT JOIN Clientes C ON V.ClienteId = C.Id";
 
                 SqlCommand command = new SqlCommand(query, connection);
 
@@ -203,8 +234,9 @@ namespace SistemaTallerAutomorizWPF.View
                         VehicleList.Add(new Vehicle
                         {
                             Id = Convert.ToInt32(reader["Id"]),
-                            Dueño = reader["Dueno"].ToString(),
-                            Marca = reader["Marca"].ToString(),
+                            Dueño = reader["NombreCliente"].ToString(),
+                            Marca = reader["MarcaVehiculo"].ToString(),
+                            Modelo = reader["Modelo"].ToString(),
                             Anio = Convert.ToInt32(reader["Anio"]),
                             Placa = reader["Placa"].ToString(),
                             Color = reader["Color"].ToString(),
@@ -261,10 +293,11 @@ namespace SistemaTallerAutomorizWPF.View
                     // Encabezados
                     worksheet.Cell(1, 1).Value = "Dueño";
                     worksheet.Cell(1, 2).Value = "Marca";
-                    worksheet.Cell(1, 3).Value = "Año";
-                    worksheet.Cell(1, 4).Value = "Placa";
-                    worksheet.Cell(1, 5).Value = "Color";
-                    worksheet.Cell(1, 6).Value = "Fecha Registro";
+                    worksheet.Cell(1, 3).Value = "Modelo";
+                    worksheet.Cell(1, 4).Value = "Año";
+                    worksheet.Cell(1, 5).Value = "Placa";
+                    worksheet.Cell(1, 6).Value = "Color";
+                    worksheet.Cell(1, 7).Value = "Fecha Registro";
 
                     // Agregar datos
                     int fila = 2;
@@ -272,10 +305,11 @@ namespace SistemaTallerAutomorizWPF.View
                     {
                         worksheet.Cell(fila, 1).Value = v.NombreCliente;
                         worksheet.Cell(fila, 2).Value = v.MarcaVehiculo;
-                        worksheet.Cell(fila, 3).Value = v.Anio;
-                        worksheet.Cell(fila, 4).Value = v.Placa;
-                        worksheet.Cell(fila, 5).Value = v.Color;
-                        worksheet.Cell(fila, 6).Value = v.FechaRegistro?.ToString("dd/MM/yyyy") ?? "";
+                        worksheet.Cell(fila, 3).Value = v.Modelo;
+                        worksheet.Cell(fila, 4).Value = v.Anio;
+                        worksheet.Cell(fila, 5).Value = v.Placa;
+                        worksheet.Cell(fila, 6).Value = v.Color;
+                        worksheet.Cell(fila, 7).Value = v.FechaRegistro?.ToString("dd/MM/yyyy") ?? "";
                         fila++;
                     }
 
@@ -332,6 +366,11 @@ namespace SistemaTallerAutomorizWPF.View
             {
                 MessageBox.Show($"Error al exportar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void ClienteComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }

@@ -71,7 +71,7 @@ namespace SistemaTallerAutomorizWPF.View
 
                 insert.Parameters.AddWithValue("@idCliente", idCliente);
                 insert.Parameters.AddWithValue("@idVehiculo", idVehiculo);
-                insert.Parameters.AddWithValue("@total", 0.00m); // se puede personalizar luego
+                insert.Parameters.AddWithValue("@total", 0.00m);
                 insert.Parameters.AddWithValue("@estado", "Nueva");
 
                 try
@@ -86,6 +86,78 @@ namespace SistemaTallerAutomorizWPF.View
                     MessageBox.Show("Error al agregar orden: " + ex.Message);
                 }
             }
+        }
+
+        private ServicesViewModel ViewModel => this.DataContext as ServicesViewModel;
+
+        private void GuardarEdicionBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var orden = ViewModel.OrdenSeleccionada;
+            if (orden == null) return;
+
+            using var con = Connections.GetConnection();
+            var cmd = new SqlCommand(@"
+                      UPDATE Ordenes
+                      SET Estado = @estado,
+                          Total = @total
+                      WHERE IdOrden = @id", con);
+
+            cmd.Parameters.AddWithValue("@estado", orden.Estado);
+            cmd.Parameters.AddWithValue("@total", orden.Total);
+            cmd.Parameters.AddWithValue("@id", orden.IdOrden);
+
+            try
+            {
+                con.Open();
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Orden actualizada correctamente.");
+
+                ViewModel.IsEditarOrdenVisible = false;
+                ViewModel.CargarDatos(); // Refresca la tabla
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al guardar cambios: " + ex.Message);
+            }
+        }
+
+        private void CancelarEdicionBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.IsEditarOrdenVisible = false;
+        }
+
+        private void EditarOrdenBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel?.ClienteSeleccionado == null)
+            {
+                MessageBox.Show("Selecciona un cliente primero.");
+                return;
+            }
+
+            ViewModel.CargarUltimaOrdenDeCliente(ViewModel.ClienteSeleccionado.IdCliente);
+
+            if (ViewModel.OrdenSeleccionada == null)
+            {
+                MessageBox.Show("Este cliente no tiene órdenes todavía.");
+                return;
+            }
+
+            ViewModel.IsEditarOrdenVisible = true;
+        }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }

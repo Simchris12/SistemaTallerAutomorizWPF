@@ -6,7 +6,47 @@
              xmlns:local="clr-namespace:SistemaTallerAutomorizWPF.View"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Encabezado -->
+        <StackPanel Orientation="Vertical" Margin="0 0 0 20">
+            <TextBlock Text="⚙️ Configuración del Sistema" FontSize="26" FontWeight="Bold" Foreground="DarkSlateGray"/>
+            <TextBlock Text="Ajustes generales y preferencias del sistema" FontSize="14" Foreground="Gray"/>
+        </StackPanel>
+
+        <!-- Secciones -->
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+
+            <!-- Usuario -->
+            <GroupBox Header="👤 Ajustes de Usuario" FontWeight="Bold" FontSize="14">
+                <StackPanel Margin="10">
+                    <CheckBox Content="Habilitar notificaciones del sistema" Margin="0 5"/>
+                    <CheckBox Content="Mostrar bienvenida personalizada" Margin="0 5"/>
+                    <CheckBox Content="Usar tema oscuro" Margin="0 5"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Seguridad -->
+            <GroupBox Header="🔒 Seguridad" FontWeight="Bold" FontSize="14">
+                <StackPanel Margin="10">
+                    <Button Content="Cambiar contraseña" Padding="10,5" Width="200" Margin="0 5"/>
+                    <Button Content="Cerrar sesión" Padding="10,5" Width="200" Margin="0 5" Background="Crimson" Foreground="White"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Sistema -->
+            <GroupBox Header="🛠️ Sistema" FontWeight="Bold" FontSize="14">
+                <StackPanel Margin="10">
+                    <CheckBox Content="Hacer copia de seguridad automáticamente" Margin="0 5"/>
+                    <Button Content="Realizar copia de seguridad ahora" Padding="10,5" Width="250" Margin="0 5"/>
+                    <Button Content="Restaurar configuración por defecto" Padding="10,5" Width="250" Margin="0 5"/>
+                </StackPanel>
+            </GroupBox>
+
+        </StackPanel>
     </Grid>
 </UserControl>

@@ -14,10 +14,13 @@ namespace SistemaTallerAutomorizWPF.ViewModels
     public class VehicleViewModel : ViewModelBase
     {
         public ObservableCollection<Vehiculo> VehiculosList { get; set; } = new ObservableCollection<Vehiculo>();
+        public ObservableCollection<Client> ClientsList { get; set; } = new ObservableCollection<Client>();
+
 
         internal void CargarDatos()
         {
             LoadVehiculosFromDB();
+            CargarClientes();
         }
 
         private List<Vehiculo> VehiculosBackup = new List<Vehiculo>();
@@ -45,6 +48,39 @@ namespace SistemaTallerAutomorizWPF.ViewModels
             }
         }
 
+        public void CargarClientes()
+        {
+            ClientsList.Clear();
+
+            using (SqlConnection connection = Connections.GetConnection())
+            {
+                string query = "SELECT Id, NameClient FROM Clientes"; // Solo lo necesario para el ComboBox
+                SqlCommand command = new SqlCommand(query, connection);
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ClientsList.Add(new Client
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            NameClient = reader["NameClient"].ToString()
+                        });
+                    }
+
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al cargar los clientes: " + ex.Message);
+                }
+            }
+        }
+
+
         private void LoadVehiculosFromDB()
         {
             VehiculosList.Clear();
@@ -52,17 +88,17 @@ namespace SistemaTallerAutomorizWPF.ViewModels
 
             using (SqlConnection connection = Connections.GetConnection())
             {
-                string query = @"
-            SELECT 
-                C.Id AS ClienteId,
-                C.NameClient AS NombreCliente,
-                C.Vehicle AS MarcaVehiculo,
-                V.Anio,
-                V.Placa,
-                V.Color,
-                V.FechaRegistro
-            FROM Clientes C
-            LEFT JOIN Vehiculos V ON V.ClienteId = C.Id";
+                string query = @"SELECT 
+                                    C.Id AS ClienteId,
+                                    C.NameClient AS NombreCliente,
+                                    V.Marca AS MarcaVehiculo,
+                                    V.Modelo,
+                                    V.Anio,
+                                    V.Placa,
+                                    V.Color,
+                                    V.FechaRegistro
+                                FROM Vehiculos V
+                                LEFT JOIN Clientes C ON V.ClienteId = C.Id";
 
                 SqlCommand command = new SqlCommand(query, connection);
 
@@ -76,12 +112,13 @@ namespace SistemaTallerAutomorizWPF.ViewModels
                         var vehiculo = new Vehiculo
                         {
                             ClienteId = Convert.ToInt32(reader["ClienteId"]),
-                            NombreCliente = reader["NombreCliente"].ToString(),
-                            MarcaVehiculo = reader["MarcaVehiculo"].ToString(),
+                            NombreCliente = reader["NombreCliente"]?.ToString(),
+                            MarcaVehiculo = reader["MarcaVehiculo"] == DBNull.Value ? null : reader["MarcaVehiculo"].ToString(),
+                            Modelo = reader["Modelo"] == DBNull.Value ? null : reader["Modelo"].ToString(),
                             Anio = reader["Anio"] == DBNull.Value ? null : (int?)Convert.ToInt32(reader["Anio"]),
-                            Placa = reader["Placa"] == DBNull.Value ? null : reader["Placa"].ToString(),
-                            Color = reader["Color"] == DBNull.Value ? null : reader["Color"].ToString(),
-                            FechaRegistro = reader["FechaRegistro"] == DBNull.Value ? null : (DateTime?)Convert.ToDateTime(reader["FechaRegistro"])
+                            Placa = reader["Placa"]?.ToString(),
+                            Color = reader["Color"]?.ToString(),
+                            FechaRegistro = reader["FechaRegistro"] == DBNull.Value ? null : (DateTime?)Convert.ToDateTime(reader["FechaRegistro"]),
                         };
                         VehiculosList.Add(vehiculo);
                         VehiculosBackup.Add(vehiculo);
@@ -98,7 +135,7 @@ namespace SistemaTallerAutomorizWPF.ViewModels
 
         internal void RecargarVehiculos()
         {
-            throw new NotImplementedException();
+            LoadVehiculosFromDB();
         }
     }
 }

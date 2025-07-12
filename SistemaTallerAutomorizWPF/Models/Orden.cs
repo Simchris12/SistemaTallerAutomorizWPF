@@ -16,6 +16,7 @@ namespace SistemaTallerAutomorizWPF.Models
         public decimal Total { get; set; }
         public string Estado { get; set; }
         public DateTime Fecha { get; set; }
+        public int NumeroOrden { get; internal set; }
     }
 
 }

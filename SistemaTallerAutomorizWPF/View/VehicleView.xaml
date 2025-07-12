@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto"/>
             <!-- Botones -->
         </Grid.RowDefinitions>
+       
 
         <!-- 🔍 Filtro de búsqueda -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 10" HorizontalAlignment="Right">
@@ -48,11 +49,14 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Dueño" Binding="{Binding NombreCliente}" Width="*" />
                 <DataGridTextColumn Header="Marca" Binding="{Binding MarcaVehiculo}" Width="*" />
+                <DataGridTextColumn Header="Modelo" Binding="{Binding Modelo}" Width="*" />
                 <DataGridTextColumn Header="Año" Binding="{Binding Anio}" Width="*" />
                 <DataGridTextColumn Header="Placa" Binding="{Binding Placa}" Width="*" />
                 <DataGridTextColumn Header="Color" Binding="{Binding Color}" Width="*" />
                 <DataGridTextColumn Header="Fecha Registro" Binding="{Binding FechaRegistro, StringFormat='{}{0:dd/MM/yyyy}'}" Width="*" />
             </DataGrid.Columns>
+            
+            
         </DataGrid>
 
         <!-- Formulario de datos -->
@@ -73,6 +77,7 @@
                        FontSize="16"
                        FontWeight="Bold"
                        Margin="0,0,0,10"/>
+                
 
                 <cc:PlaceHolderforTextBox x:Name="MarcaTextBox"
                                       PlaceHolder="Marca del vehívulo"
@@ -110,8 +115,14 @@
                TextWrapping="Wrap" Margin="0 0 0 5"/>
                 <TextBlock Text="Año: Entre 1900 y el actual"
                TextWrapping="Wrap" Margin="0 0 0 5"/>
-                <TextBlock Text="Placa: Formato A1234567" 
+                <TextBlock Text="Placa: Formato Dominicano" 
                TextWrapping="Wrap" Margin="0 0 0 5"/>
+
+                <ComboBox x:Name="ClienteComboBox"
+                            DisplayMemberPath="NameClient"
+                            SelectedValuePath="Id"
+                            Width="200"
+                            HorizontalAlignment="Left" SelectionChanged="ClienteComboBox_SelectionChanged" />
             </StackPanel>
 
 
@@ -136,11 +147,6 @@
                     Style="{StaticResource AnimatedButtonStyle}"
                     Click="EditarVehiculoBtn_Click"
                     Margin="0 0 5 0"/>
-            <Button x:Name="EliminarVehiculoBtn"
-                    Content="Eliminar"
-                    Width="100"
-                    Style="{StaticResource AnimatedButtonStyle}"
-                    Click="EliminarVehiculoBtn_Click"/>
 
             <Button x:Name="ExportarExcelBtn"
                     Content="Exportar a Excel"

@@ -90,9 +90,12 @@ namespace SistemaTallerAutomorizWPF.View
 
         private void LoadClientsFromDB()
         {
-            using (SqlConnection connection = Connections.GetConnection())
+            ClientsList.Clear();
+
+            using (SqlConnection connection = Models.Connections.GetConnection())
             {
-                string query = "SELECT Id, NameClient, Email, Vehicle, Orders, Debts FROM Clientes";
+                string query = @"SELECT Id, NameClient, Email, Vehicle, Orders, Debts, Placa FROM Clientes";
+
                 SqlCommand command = new SqlCommand(query, connection);
 
                 try
@@ -109,7 +112,8 @@ namespace SistemaTallerAutomorizWPF.View
                             Email = reader["Email"].ToString(),
                             Vehicle = reader["Vehicle"].ToString(),
                             Orders = Convert.ToInt32(reader["Orders"]),
-                            Debts = Convert.ToDecimal(reader["Debts"])
+                            Debts = Convert.ToDecimal(reader["Debts"]),
+                            Placa = reader["Placa"] == DBNull.Value ? null : reader["Placa"].ToString()
                         });
                     }
 
@@ -117,9 +121,11 @@ namespace SistemaTallerAutomorizWPF.View
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error loading data: " + ex.Message);
+                    MessageBox.Show("Error al cargar los clientes: " + ex.Message);
                 }
             }
+
+            ClientDataGrid.ItemsSource = ClientsList;
         }
 
         private void Button_Click_1()
@@ -149,6 +155,7 @@ namespace SistemaTallerAutomorizWPF.View
                         worksheet.Cell(1, 3).Value = "Vehículo";
                         worksheet.Cell(1, 4).Value = "Órdenes";
                         worksheet.Cell(1, 5).Value = "Dedudas";
+                        worksheet.Cell(1, 6).Value = "Placa";
 
                         //Datos
                         for (int i = 0; i < ClientsList.Count; i++)
@@ -159,6 +166,7 @@ namespace SistemaTallerAutomorizWPF.View
                             worksheet.Cell(i + 2, 3).Value = Client.Vehicle;
                             worksheet.Cell(i + 2, 4).Value = Client.Orders;
                             worksheet.Cell(i + 2, 5).Value = Client.Debts;
+                            worksheet.Cell(i + 2, 6).Value = Client.Placa;
                         }
 
                         //Autoajustar columnas
@@ -199,9 +207,16 @@ namespace SistemaTallerAutomorizWPF.View
             boton.IsEnabled = false; // Desactiva el botón
 
             // Para no guardar los placeholders
-            if (NombreTextBox.IsPlaceHolderVisible || EmailTextBox.IsPlaceHolderVisible || VehiculoTextBox.IsPlaceHolderVisible)
+            if (NombreTextBox.IsPlaceHolderVisible || EmailTextBox.IsPlaceHolderVisible || VehiculoTextBox.IsPlaceHolderVisible || PlacaTextBox.IsPlaceHolderVisible )
             {
                 MessageBox.Show("Por favor, completa todos los campos obligatorios.");
+                boton.IsEnabled = true;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PlacaTextBox.Text))
+            {
+                MessageBox.Show("La placa es obligatoria.");
                 boton.IsEnabled = true;
                 return;
             }
@@ -224,14 +239,6 @@ namespace SistemaTallerAutomorizWPF.View
                 return;
             }
 
-            // Validar Órdenes
-            if (!int.TryParse(OrdenesTextBox.IsPlaceHolderVisible ? "0" : OrdenesTextBox.Text, out int orders) || orders < 0)
-            {
-                MessageBox.Show("El número de órdenes debe ser un número entero positivo.");
-                boton.IsEnabled = true;
-                return;
-            }
-
             //Validar Deudas
             if (!decimal.TryParse(DeudasTextBox.IsPlaceHolderVisible ? "0" : DeudasTextBox.Text, out decimal debts) || debts < 0)
             {
@@ -242,14 +249,14 @@ namespace SistemaTallerAutomorizWPF.View
 
             using (SqlConnection connection = SistemaTallerAutomorizWPF.Models.Connections.GetConnection())
             {
-                string insertQuery = "INSERT INTO Clientes (NameClient, Email, Vehicle, Orders, Debts) VALUES (@NameClient, @Email, @Vehicle, @Orders, @Debts)";
+                string insertQuery = "INSERT INTO Clientes (NameClient, Email, Vehicle, Debts)\r\n VALUES (@NameClient, @Email, @Vehicle, @Debts);\r\n SELECT SCOPE_IDENTITY();";
                 SqlCommand command = new SqlCommand(insertQuery, connection);
 
                 command.Parameters.AddWithValue("@NameClient", NombreTextBox.Text.Trim());
                 command.Parameters.AddWithValue("@Email", EmailTextBox.Text.Trim());
                 command.Parameters.AddWithValue("@Vehicle", VehiculoTextBox.Text.Trim());
-                command.Parameters.AddWithValue("@Orders", orders);
                 command.Parameters.AddWithValue("@Debts", debts);
+                command.Parameters.AddWithValue("@Placa", PlacaTextBox.Text.Trim());
 
                 try
                 {
@@ -311,7 +318,7 @@ namespace SistemaTallerAutomorizWPF.View
                         Directory.CreateDirectory(rutaLogs);
 
                     string rutaLogFinal = System.IO.Path.Combine(rutaLogs, nombreLog);
-                    string logAgregado = $"[{DateTime.Now:HH:mm:ss}] [AGREGADO] {NombreTextBox.Text.Trim()}, {EmailTextBox.Text.Trim()}, {VehiculoTextBox.Text.Trim()}, Órdenes: {orders}, Deuda: {debts:C}";
+                    string logAgregado = $"[{DateTime.Now:HH:mm:ss}] [AGREGADO] {NombreTextBox.Text.Trim()}, {EmailTextBox.Text.Trim()}, {VehiculoTextBox.Text.Trim()}, Deuda: {debts:C}";
 
                     File.AppendAllText(rutaLogFinal, logAgregado + Environment.NewLine);
 
@@ -320,7 +327,7 @@ namespace SistemaTallerAutomorizWPF.View
                     NombreTextBox.Text = "";
                     EmailTextBox.Text = "";
                     VehiculoTextBox.Text = "";
-                    OrdenesTextBox.Text = "";
+                    PlacaTextBox.Text = "";
                     DeudasTextBox.Text = "";
 
                     //Vuelve el foco al primer campo
@@ -538,13 +545,19 @@ namespace SistemaTallerAutomorizWPF.View
                 NombreTextBox.Text = cliente.NameClient;
                 EmailTextBox.Text = cliente.Email;
                 VehiculoTextBox.Text = cliente.Vehicle;
-                OrdenesTextBox.Text = cliente.Orders.ToString();
+                PlacaTextBox.Text = cliente.Orders.ToString();
                 DeudasTextBox.Text = cliente.Debts.ToString("0.00");
+                PlacaTextBox.Text = cliente.Placa;
             }
         }
 
         private void GuardarCambios_Click(object sender, RoutedEventArgs e)
         {
+            Button boton = (Button)sender;
+            boton.IsEnabled = false;
+
+            bool huboCambios = false;
+
             foreach (var cliente in ClientsList)
             {
                 using (SqlConnection connection = Connections.GetConnection())
@@ -553,8 +566,7 @@ namespace SistemaTallerAutomorizWPF.View
                     {
                         connection.Open();
 
-                        // Obtener datos actuales del cliente en la BD
-                        string selectQuery = "SELECT NameClient, Vehicle, Orders, Debts FROM Clientes WHERE Id = @Id";
+                        string selectQuery = "SELECT NameClient, Email, Vehicle, Placa, Orders, Debts FROM Clientes WHERE Id = @Id";
                         SqlCommand selectCommand = new SqlCommand(selectQuery, connection);
                         selectCommand.Parameters.AddWithValue("@Id", cliente.Id);
 
@@ -563,37 +575,52 @@ namespace SistemaTallerAutomorizWPF.View
                         if (reader.Read())
                         {
                             string nameBD = reader["NameClient"].ToString();
+                            string emailBD = reader["Email"].ToString();
                             string vehicleBD = reader["Vehicle"].ToString();
+                            string placaBD = reader["Placa"].ToString();
                             int ordersBD = Convert.ToInt32(reader["Orders"]);
                             decimal debtsBD = Convert.ToDecimal(reader["Debts"]);
 
-                            reader.Close(); // ¡Importante cerrarlo antes de usar otro comando!
+                            reader.Close();
 
-                            // Comparar con valores en pantalla
                             if (cliente.NameClient != nameBD ||
+                                cliente.Email != emailBD ||
                                 cliente.Vehicle != vehicleBD ||
+                                cliente.Placa != placaBD ||
                                 cliente.Orders != ordersBD ||
                                 cliente.Debts != debtsBD)
                             {
-                                // Sí hubo cambio, entonces hacemos el update
-                                string updateQuery = "UPDATE Clientes SET NameClient = @NameClient, Vehicle = @Vehicle, Orders = @Orders, Debts = @Debts WHERE Id = @Id";
+                                string updateQuery = @"
+                                                    UPDATE Clientes
+                                                    SET NameClient = @NameClient,
+                                                        Email = @Email,
+                                                        Vehicle = @Vehicle,
+                                                        Orders = @Orders,
+                                                        Debts = @Debts,
+                                                        Placa = @Placa
+                                                    WHERE Id = @Id";
+
                                 SqlCommand updateCommand = new SqlCommand(updateQuery, connection);
                                 updateCommand.Parameters.AddWithValue("@Id", cliente.Id);
                                 updateCommand.Parameters.AddWithValue("@NameClient", cliente.NameClient);
+                                updateCommand.Parameters.AddWithValue("@Email", cliente.Email);
                                 updateCommand.Parameters.AddWithValue("@Vehicle", cliente.Vehicle);
                                 updateCommand.Parameters.AddWithValue("@Orders", cliente.Orders);
                                 updateCommand.Parameters.AddWithValue("@Debts", cliente.Debts);
+                                updateCommand.Parameters.AddWithValue("@Placa", cliente.Placa);
 
                                 updateCommand.ExecuteNonQuery();
 
-                                // Guardar en el log como MODIFICADO
+                                // 📝 Guardar en el log
                                 string nombreLog = $"LogClientes_{DateTime.Today:yyyy-MM-dd}.txt";
                                 string rutaLogs = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
                                 if (!Directory.Exists(rutaLogs)) Directory.CreateDirectory(rutaLogs);
 
                                 string rutaLogFinal = System.IO.Path.Combine(rutaLogs, nombreLog);
-                                string logModificado = $"[{DateTime.Now:HH:mm:ss}] [MODIFICADO] {cliente.NameClient}, {cliente.Email}, {cliente.Vehicle}, Órdenes: {cliente.Orders}, Deuda: {cliente.Debts:C}";
+                                string logModificado = $"[{DateTime.Now:HH:mm:ss}] [MODIFICADO] {cliente.NameClient}, {cliente.Email}, {cliente.Vehicle}, Placa: {cliente.Placa}, Órdenes: {cliente.Orders}, Deuda: {cliente.Debts:C}";
                                 File.AppendAllText(rutaLogFinal, logModificado + Environment.NewLine);
+
+                                huboCambios = true;
                             }
                         }
                     }
@@ -604,7 +631,56 @@ namespace SistemaTallerAutomorizWPF.View
                 }
             }
 
-            MessageBox.Show("Cambios guardados correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (huboCambios)
+            {
+                MessageBox.Show("Cambios guardados correctamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                // ✅ Animación visual del botón
+                var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F0F0F0"));
+                boton.Background = brush;
+
+                var animationToGreen = new ColorAnimation
+                {
+                    To = (Color)ColorConverter.ConvertFromString("#9FA324"),
+                    Duration = TimeSpan.FromSeconds(0.4)
+                };
+                brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToGreen);
+
+                boton.Foreground = Brushes.White;
+
+                Task.Delay(3000).ContinueWith(_ =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        var animationToGray = new ColorAnimation
+                        {
+                            To = (Color)ColorConverter.ConvertFromString("#F0F0F0"),
+                            Duration = TimeSpan.FromSeconds(0.5)
+                        };
+                        brush.BeginAnimation(SolidColorBrush.ColorProperty, animationToGray);
+
+                        boton.Foreground = Brushes.Black;
+                        boton.IsEnabled = true;
+                    });
+                });
+            }
+            else
+            {
+                MessageBox.Show("No se detectaron cambios para guardar.", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
+                boton.IsEnabled = true;
+            }
+        }
+
+
+
+        private void ClientDataGrid_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void ModeloTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
 }
