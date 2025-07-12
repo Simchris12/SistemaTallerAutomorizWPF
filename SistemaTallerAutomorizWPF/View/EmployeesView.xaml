@@ -35,7 +35,7 @@
                     Foreground="White"
                     FontWeight="SemiBold"
                     BorderBrush="Transparent"
-                    Cursor="Hand"/>
+                    Cursor="Hand" Click="Button_Click"/>
                 <Button Content="✏️ Editar"
                     Padding="10,5"
                     Command="{Binding EditarEmpleadoCommand}"

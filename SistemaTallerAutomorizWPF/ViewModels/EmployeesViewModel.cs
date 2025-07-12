@@ -12,6 +12,7 @@ using System.Windows.Input;
 using SistemaTallerAutomorizWPF.Commands;
 using SistemaTallerAutomorizWPF.Models;
 using SistemaTallerAutomorizWPF.Repositories;
+using SistemaTallerAutomorizWPF.View;
 using SistemaTallerAutomorizWPF.ViewModel;
 
 namespace SistemaTallerAutomorizWPF.ViewModels
@@ -76,8 +77,8 @@ namespace SistemaTallerAutomorizWPF.ViewModels
 
         private void AgregarEmpleado(object obj)
         {
-            MessageBox.Show("Aquí abrirás un formulario emergente para agregar un nuevo empleado.");
-            // Luego puedes crear una vista flotante para ingresar datos y guardarlos en la DB.
+            var ventana = new AddEmployeeView();
+            ventana.ShowDialog();
         }
 
         private void EditarEmpleado(object obj)
